@@ -1,21 +1,17 @@
 # TestRunner
 
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Python](https://img.shields.io/badge/Python-3.8+-green.svg)](https://www.python.org/)
-[![Django](https://img.shields.io/badge/Django-4.2-green.svg)](https://www.djangoproject.com/)
-
 TestRunner 是一个基于 Django 和 HttpRunner 构建的自动化测试平台，旨在提供一个完整的接口自动化测试解决方案。该平台集成了项目管理、环境配置、接口管理、测试用例编写、测试任务执行和结果分析等功能，为测试团队提供了一站式的测试服务。
 
 ## 项目截图
 
 ### 仪表盘界面
-xxxx仪表盘界面截图
+![image](https://github.com/user-attachments/assets/a0dcd494-5e9e-49f0-a42c-d92f7d49e13c)
 
 ### 接口管理界面
-xxxx接口管理界面截图
+![image](https://github.com/user-attachments/assets/c6d08f50-963c-481c-a0b3-1fd967dec1e5)
 
 ### 测试用例编辑界面
-xxxx测试用例编辑界面截图
+![image](https://github.com/user-attachments/assets/91b0fa18-c9a0-4d91-9ccd-298d3c78b7b3)
 
 ## 项目概述
 
@@ -211,7 +207,8 @@ TestRunner 平台支持接口与测试用例的同步更新，当接口定义发
 
 ### 同步流程图
 
-xxxx同步流程图
+![image](https://github.com/user-attachments/assets/56142774-f6a6-496d-88a1-7f57fb99e34b)
+
 
 ## 使用流程
 
