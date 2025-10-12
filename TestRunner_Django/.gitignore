@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+*.sqlite
+.cunzhi-memory
+
+# 配置文件
+*.ini
+!example.config.ini
+
+# IDE
+.idea/
+.vscode/
+
+# 环境
+.env
+.venv
+env/
+venv/
+ENV/
+
+# 性能测试相关文件
+performance_results/
+*.jtl
+*.jmx
+jmeter.log
+bzt.log
+effective.*
+merged.* 
