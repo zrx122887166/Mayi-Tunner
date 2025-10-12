@@ -1,5 +1,5 @@
 # Django 及其扩展
-Django==5.2.1
+Django==5.1.4
 djangorestframework==3.15.2
 django-cors-headers==4.4.0
 django-filter==24.2
@@ -70,7 +70,6 @@ pyinstaller==6.9.0
 
 # 基础依赖
 asgiref==3.8.1
-backports.zoneinfo==0.2.1
 certifi==2024.12.14
 charset-normalizer==3.4.1
 idna==3.10

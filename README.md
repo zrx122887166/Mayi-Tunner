@@ -226,6 +226,91 @@ TestRunner/
     └── public/
 ```
 
+## 🐳 Docker 部署（推荐）
+
+使用 Docker 可以一键部署整个项目，包括后端、前端、数据库和Celery异步任务。
+
+### 环境要求
+
+- Docker 20.10+
+- Docker Compose 2.0+
+
+### 快速启动
+
+```bash
+# 1. 克隆项目
+git clone https://github.com/lucky-Testrunner/TestRunner.git
+cd TestRunner
+
+# 2. 配置环境变量（可选）
+cp .env.example .env
+# 编辑 .env 文件，修改必要配置（默认配置即可直接使用）
+
+# 3. 启动所有服务
+docker-compose up -d
+
+# 4. 查看服务状态
+docker-compose ps
+
+# 5. 查看日志
+docker-compose logs -f
+```
+
+### 常用命令
+
+```bash
+# 停止所有服务
+docker-compose down
+
+# 重启服务
+docker-compose restart
+
+# 查看特定服务日志
+docker-compose logs -f backend
+docker-compose logs -f celery_worker
+
+# 进入容器
+docker-compose exec backend bash
+docker-compose exec frontend sh
+```
+
+### 访问地址
+
+- **前端页面**: http://localhost
+- **后端API**: http://localhost:8000
+- **数据库**: localhost:3307 (用户名: testrunner, 密码: testrunner123)
+
+**默认管理员账号**：
+- 用户名：`admin`
+- 密码：`admin123456`
+
+### 服务说明
+
+Docker部署包含以下5个服务：
+
+| 服务 | 说明 | 端口 |
+|-----|------|------|
+| `db` | MySQL 8.0 数据库 | 3307 |
+| `backend` | Django后端服务 | 8000 |
+| `celery_worker` | Celery异步任务执行器 | - |
+| `celery_beat` | Celery定时任务调度器 | - |
+| `frontend` | Vue3前端 + Nginx | 80 |
+
+### 镜像信息
+
+部署会自动构建以下镜像：
+- `testrunner-backend:latest` - Django后端+Celery
+- `testrunner-celery_worker:latest` - Celery Worker
+- `testrunner-celery_beat:latest` - Celery Beat
+- `testrunner-frontend:latest` - Vue3前端+Nginx
+
+### 数据持久化
+
+以下目录会自动创建并持久化数据：
+- `mysql_data/` - MySQL数据文件
+- `static/` - Django静态文件
+- `media/` - 用户上传文件
+
 ## 🚀 快速开始
 
 ### 环境要求
