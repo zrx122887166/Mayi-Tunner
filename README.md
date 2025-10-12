@@ -228,88 +228,100 @@ TestRunner/
 
 ## 🐳 Docker 部署（推荐）
 
-使用 Docker 可以一键部署整个项目，包括后端、前端、数据库和Celery异步任务。
+我们提供两种 Docker 部署方式，以满足不同用户的需求。
 
-### 环境要求
+### 方式一：使用预构建镜像（推荐给普通用户）
 
-- Docker 20.10+
-- Docker Compose 2.0+
+这种方式无需在本地构建镜像，直接从 Docker Hub 拉取预先构建好的镜像，可以极大地缩短部署时间。
 
-### 快速启动
+**优点：**
+*   **快速**：几分钟内即可完成部署，无需等待漫长的构建过程。
+*   **简单**：只需要一个 `docker-compose.pull.yml` 文件和一条命令。
+*   **稳定**：使用经过测试的稳定版本镜像。
 
+**操作步骤：**
+
+1.  **下载部署文件**：
+    从项目仓库下载 `docker-compose.pull.yml` 和 `.env.example` 文件。
+
+2.  **配置环境变量** (可选):
+    ```bash
+    cp .env.example .env
+    # .env 文件中的默认配置已可直接运行，如有需要可自行修改
+    ```
+
+3.  **启动服务**：
+    ```bash
+    docker-compose -f docker-compose.pull.yml up -d
+    ```
+    Docker 会自动从 `yishanyishan/testrunner-backend` 和 `yishanyishan/testrunner-frontend` 拉取镜像，并从官方仓库拉取 `mysql:8.0`。
+
+### 方式二：本地构建镜像（推荐给开发者）
+
+这种方式适合需要修改源代码或进行二次开发的开发者。
+
+**优点：**
+*   **灵活**：可以随时修改代码并重新构建镜像。
+*   **离线**：除基础镜像外，构建过程不依赖外部网络。
+
+**操作步骤：**
+
+1.  **克隆完整项目**：
+    ```bash
+    git clone https://github.com/lucky-Testrunner/TestRunner.git
+    cd TestRunner
+    ```
+
+2.  **配置环境变量** (可选):
+    ```bash
+    cp .env.example .env
+    ```
+
+3.  **启动服务并构建**：
+    ```bash
+    docker-compose up -d --build
+    ```
+    首次执行会需要较长时间来构建 `backend` 和 `frontend` 镜像。
+
+---
+
+### 部署后通用信息
+
+**访问地址：**
+*   **前端页面**: http://localhost
+*   **后端API**: http://localhost:8000
+*   **数据库**: localhost:3307 (用户名: testrunner, 密码: testrunner123)
+
+**默认管理员账号：**
+*   用户名：`admin`
+*   密码：`admin123456`
+
+**常用命令：**
 ```bash
-# 1. 克隆项目
-git clone https://github.com/lucky-Testrunner/TestRunner.git
-cd TestRunner
+# 查看服务状态 (根据你使用的方式选择对应的 yml 文件)
+docker-compose -f [docker-compose.yml 或 docker-compose.pull.yml] ps
 
-# 2. 配置环境变量（可选）
-cp .env.example .env
-# 编辑 .env 文件，修改必要配置（默认配置即可直接使用）
+# 查看日志
+docker-compose -f [docker-compose.yml 或 docker-compose.pull.yml] logs -f
 
-# 3. 启动所有服务
-docker-compose up -d
-
-# 4. 查看服务状态
-docker-compose ps
-
-# 5. 查看日志
-docker-compose logs -f
+# 停止服务
+docker-compose -f [docker-compose.yml 或 docker-compose.pull.yml] down
 ```
 
-### 常用命令
+### 架构与镜像说明
 
-```bash
-# 停止所有服务
-docker-compose down
+本项目通过 `docker-compose` 编排了5个服务，但只需要您维护和推送 **2个自定义镜像**，实现了高效的镜像复用策略。
 
-# 重启服务
-docker-compose restart
+| 服务 (容器) | 使用的镜像 | 镜像来源 | 说明 |
+| :--- | :--- | :--- | :--- |
+| `db` | `mysql:8.0` | **官方** | 无需我们构建和推送。 |
+| `backend` | `yishanyishan/testrunner-backend` | **您的** | Django 应用主程序。 |
+| `celery_worker` | `yishanyishan/testrunner-backend` | **您的** | **复用后端镜像**，执行异步任务。 |
+| `celery_beat` | `yishanyishan/testrunner-backend` | **您的** | **复用后端镜像**，执行定时任务。 |
+| `frontend` | `yishanyishan/testrunner-frontend` | **您的** | Vue 前端应用。 |
 
-# 查看特定服务日志
-docker-compose logs -f backend
-docker-compose logs -f celery_worker
-
-# 进入容器
-docker-compose exec backend bash
-docker-compose exec frontend sh
-```
-
-### 访问地址
-
-- **前端页面**: http://localhost
-- **后端API**: http://localhost:8000
-- **数据库**: localhost:3307 (用户名: testrunner, 密码: testrunner123)
-
-**默认管理员账号**：
-- 用户名：`admin`
-- 密码：`admin123456`
-
-### 服务说明
-
-Docker部署包含以下5个服务：
-
-| 服务 | 说明 | 端口 |
-|-----|------|------|
-| `db` | MySQL 8.0 数据库 | 3307 |
-| `backend` | Django后端服务 | 8000 |
-| `celery_worker` | Celery异步任务执行器 | - |
-| `celery_beat` | Celery定时任务调度器 | - |
-| `frontend` | Vue3前端 + Nginx | 80 |
-
-### 镜像信息
-
-部署会自动构建以下镜像：
-- `testrunner-backend:latest` - Django后端+Celery
-- `testrunner-celery_worker:latest` - Celery Worker
-- `testrunner-celery_beat:latest` - Celery Beat
-- `testrunner-frontend:latest` - Vue3前端+Nginx
-
-### 数据持久化
-
-以下目录会自动创建并持久化数据：
-- `mysql_data/` - MySQL数据文件
-- `static/` - Django静态文件
-- `media/` - 用户上传文件
+**数据持久化:**
+项目数据（如MySQL数据、日志、静态文件）通过 Docker `volumes` 持久化在宿主机，即使容器被删除，数据依然保留。
 
 ## 🚀 快速开始
 
