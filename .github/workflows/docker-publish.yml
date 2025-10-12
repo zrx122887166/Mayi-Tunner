@@ -32,7 +32,7 @@ jobs:
           context: ./TestRunner_Django
           file: ./TestRunner_Django/Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/testrunner-backend:latest
+          tags: ghcr.io/lucky-testrunner/testrunner-backend:latest
 
       # 5. 构建并推送前端镜像
       - name: Build and push frontend image
@@ -41,4 +41,4 @@ jobs:
           context: ./TestRunner_Vue
           file: ./TestRunner_Vue/Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/testrunner-frontend:latest
+          tags: ghcr.io/lucky-testrunner/testrunner-frontend:latest

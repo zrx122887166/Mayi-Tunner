@@ -287,10 +287,10 @@ docker-compose up -d
 | 服务 (容器) | 使用的镜像 | 镜像来源 | 说明 |
 | :--- | :--- | :--- | :--- |
 | `db` | `mysql:8.0` | **官方** | 无需我们构建和推送。 |
-| `backend` | `ghcr.io/lucky-Testrunner/testrunner-backend` | **您的 (GHCR)** | Django 应用主程序。 |
-| `celery_worker` | `ghcr.io/lucky-Testrunner/testrunner-backend` | **您的 (GHCR)** | **复用后端镜像**，执行异步任务。 |
-| `celery_beat` | `ghcr.io/lucky-Testrunner/testrunner-backend` | **您的 (GHCR)** | **复用后端镜像**，执行定时任务。 |
-| `frontend` | `ghcr.io/lucky-Testrunner/testrunner-frontend` | **您的 (GHCR)** | Vue 前端应用。 |
+| `backend` | `ghcr.io/lucky-testrunner/testrunner-backend` | **您的 (GHCR)** | Django 应用主程序。 |
+| `celery_worker` | `ghcr.io/lucky-testrunner/testrunner-backend` | **您的 (GHCR)** | **复用后端镜像**，执行异步任务。 |
+| `celery_beat` | `ghcr.io/lucky-testrunner/testrunner-backend` | **您的 (GHCR)** | **复用后端镜像**，执行定时任务。 |
+| `frontend` | `ghcr.io/lucky-testrunner/testrunner-frontend` | **您的 (GHCR)** | Vue 前端应用。 |
 
 **数据持久化:**
 项目数据（如MySQL数据、日志、静态文件）通过 Docker `volumes` 持久化在宿主机，即使容器被删除，数据依然保留。

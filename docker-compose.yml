@@ -30,7 +30,7 @@ services:
 
   # Django后端
   backend:
-    image: ghcr.io/lucky-Testrunner/testrunner-backend:latest
+    image: ghcr.io/lucky-testrunner/testrunner-backend:latest
     container_name: testrunner_backend
     restart: always
     environment:
@@ -58,7 +58,7 @@ services:
 
   # Celery Worker - 异步任务执行
   celery_worker:
-    image: ghcr.io/lucky-Testrunner/testrunner-backend:latest
+    image: ghcr.io/lucky-testrunner/testrunner-backend:latest
     container_name: testrunner_celery_worker
     restart: always
     environment:
@@ -86,7 +86,7 @@ services:
 
   # Celery Beat - 定时任务调度
   celery_beat:
-    image: ghcr.io/lucky-Testrunner/testrunner-backend:latest
+    image: ghcr.io/lucky-testrunner/testrunner-backend:latest
     container_name: testrunner_celery_beat
     restart: always
     environment:
@@ -114,7 +114,7 @@ services:
 
   # Vue前端
   frontend:
-    image: ghcr.io/lucky-Testrunner/testrunner-frontend:latest
+    image: ghcr.io/lucky-testrunner/testrunner-frontend:latest
     container_name: testrunner_frontend
     restart: always
     ports:
