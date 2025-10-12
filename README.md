@@ -226,23 +226,17 @@ TestRunner/
     └── public/
 ```
 
-## 🐳 Docker 部署（推荐）
+## 🐳 Docker 部署
 
-我们提供两种 Docker 部署方式，以满足不同用户的需求。
+本项目推荐使用 Docker 进行部署，它极大地简化了环境配置和启动流程。
 
-### 方式一：使用预构建镜像（推荐给普通用户）
+### 快速启动
 
-这种方式无需在本地构建镜像，直接从 Docker Hub 拉取预先构建好的镜像，可以极大地缩短部署时间。
-
-**优点：**
-*   **快速**：几分钟内即可完成部署，无需等待漫长的构建过程。
-*   **简单**：只需要一个 `docker-compose.pull.yml` 文件和一条命令。
-*   **稳定**：使用经过测试的稳定版本镜像。
-
-**操作步骤：**
-
-1.  **下载部署文件**：
-    从项目仓库下载 `docker-compose.pull.yml` 和 `.env.example` 文件。
+1.  **克隆项目**：
+    ```bash
+    git clone https://github.com/lucky-Testrunner/TestRunner.git
+    cd TestRunner
+    ```
 
 2.  **配置环境变量** (可选):
     ```bash
@@ -252,38 +246,9 @@ TestRunner/
 
 3.  **启动服务**：
     ```bash
-    docker-compose -f docker-compose.pull.yml up -d
+    docker-compose up -d
     ```
-    Docker 会自动从 `yishanyishan/testrunner-backend` 和 `yishanyishan/testrunner-frontend` 拉取镜像，并从官方仓库拉取 `mysql:8.0`。
-
-### 方式二：本地构建镜像（推荐给开发者）
-
-这种方式适合需要修改源代码或进行二次开发的开发者。
-
-**优点：**
-*   **灵活**：可以随时修改代码并重新构建镜像。
-*   **离线**：除基础镜像外，构建过程不依赖外部网络。
-
-**操作步骤：**
-
-1.  **克隆完整项目**：
-    ```bash
-    git clone https://github.com/lucky-Testrunner/TestRunner.git
-    cd TestRunner
-    ```
-
-2.  **配置环境变量** (可选):
-    ```bash
-    cp .env.example .env
-    ```
-
-3.  **启动服务并构建**：
-    ```bash
-    docker-compose up -d --build
-    ```
-    首次执行会需要较长时间来构建 `backend` 和 `frontend` 镜像。
-
----
+    Docker 会自动从 **GitHub Container Registry (GHCR)** 拉取预构建的镜像并启动所有服务。这个过程无需本地构建，非常快速。
 
 ### 部署后通用信息
 
@@ -298,14 +263,21 @@ TestRunner/
 
 **常用命令：**
 ```bash
-# 查看服务状态 (根据你使用的方式选择对应的 yml 文件)
-docker-compose -f [docker-compose.yml 或 docker-compose.pull.yml] ps
+# 查看服务状态
+docker-compose ps
 
-# 查看日志
-docker-compose -f [docker-compose.yml 或 docker-compose.pull.yml] logs -f
+# 查看所有日志
+docker-compose logs -f
+
+# 查看特定服务日志
+docker-compose logs -f backend
 
 # 停止服务
-docker-compose -f [docker-compose.yml 或 docker-compose.pull.yml] down
+docker-compose down
+
+# 更新镜像并重启
+docker-compose pull
+docker-compose up -d
 ```
 
 ### 架构与镜像说明
@@ -315,10 +287,10 @@ docker-compose -f [docker-compose.yml 或 docker-compose.pull.yml] down
 | 服务 (容器) | 使用的镜像 | 镜像来源 | 说明 |
 | :--- | :--- | :--- | :--- |
 | `db` | `mysql:8.0` | **官方** | 无需我们构建和推送。 |
-| `backend` | `yishanyishan/testrunner-backend` | **您的** | Django 应用主程序。 |
-| `celery_worker` | `yishanyishan/testrunner-backend` | **您的** | **复用后端镜像**，执行异步任务。 |
-| `celery_beat` | `yishanyishan/testrunner-backend` | **您的** | **复用后端镜像**，执行定时任务。 |
-| `frontend` | `yishanyishan/testrunner-frontend` | **您的** | Vue 前端应用。 |
+| `backend` | `ghcr.io/lucky-Testrunner/testrunner-backend` | **您的 (GHCR)** | Django 应用主程序。 |
+| `celery_worker` | `ghcr.io/lucky-Testrunner/testrunner-backend` | **您的 (GHCR)** | **复用后端镜像**，执行异步任务。 |
+| `celery_beat` | `ghcr.io/lucky-Testrunner/testrunner-backend` | **您的 (GHCR)** | **复用后端镜像**，执行定时任务。 |
+| `frontend` | `ghcr.io/lucky-Testrunner/testrunner-frontend` | **您的 (GHCR)** | Vue 前端应用。 |
 
 **数据持久化:**
 项目数据（如MySQL数据、日志、静态文件）通过 Docker `volumes` 持久化在宿主机，即使容器被删除，数据依然保留。
