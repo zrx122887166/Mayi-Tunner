@@ -4,6 +4,24 @@ version: '3.8'
 # 使用方法: docker-compose up -d
 
 services:
+  # Redis - Celery消息队列
+  redis:
+    image: redis:7-alpine
+    container_name: testrunner_redis
+    restart: always
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - testrunner_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
   # MySQL数据库
   db:
     image: mysql:8.0
@@ -42,8 +60,8 @@ services:
       - DB_PASSWORD=${DB_PASSWORD:-testrunner123}
       - DB_HOST=db
       - DB_PORT=3306
-      - CELERY_BROKER_URL=sqla+sqlite:///celery.sqlite
-      - CELERY_RESULT_BACKEND=django-db
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     volumes:
       - backend_logs:/app/logs
@@ -52,6 +70,8 @@ services:
       - "8000:8000"
     depends_on:
       db:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     networks:
       - testrunner_network
@@ -77,13 +97,15 @@ services:
       - DB_PASSWORD=${DB_PASSWORD:-testrunner123}
       - DB_HOST=db
       - DB_PORT=3306
-      - CELERY_BROKER_URL=sqla+sqlite:///celery.sqlite
-      - CELERY_RESULT_BACKEND=django-db
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     volumes:
       - backend_logs:/app/logs
     depends_on:
       db:
+        condition: service_healthy
+      redis:
         condition: service_healthy
       backend:
         condition: service_healthy
@@ -105,13 +127,15 @@ services:
       - DB_PASSWORD=${DB_PASSWORD:-testrunner123}
       - DB_HOST=db
       - DB_PORT=3306
-      - CELERY_BROKER_URL=sqla+sqlite:///celery.sqlite
-      - CELERY_RESULT_BACKEND=django-db
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     volumes:
       - backend_logs:/app/logs
     depends_on:
       db:
+        condition: service_healthy
+      redis:
         condition: service_healthy
       backend:
         condition: service_healthy
@@ -136,6 +160,8 @@ networks:
     driver: bridge
 
 volumes:
+  redis_data:
+    driver: local
   mysql_data:
     driver: local
   backend_logs:
