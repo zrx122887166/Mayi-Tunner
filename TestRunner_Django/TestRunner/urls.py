@@ -53,3 +53,12 @@ urlpatterns = [
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]
+
+
+from django.http import JsonResponse
+
+def health_check(request):
+    """健康检查接口"""
+    return JsonResponse({"status": "ok"})
+
+urlpatterns.append(path('api/health/', health_check))
