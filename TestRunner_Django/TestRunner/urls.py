@@ -16,6 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include, re_path
+from django.http import JsonResponse
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
@@ -34,31 +35,31 @@ schema_view = get_schema_view(
     permission_classes=(permissions.AllowAny,),
 )
 
+def health_check(request):
+    """健康检查接口"""
+    return JsonResponse({"status": "ok"})
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/users/', include('users.urls')),
-    path('api/projects/', include('projects.urls')),
+    
+    # API路由 - 注意顺序,更具体的路由应该在更通用的路由之前
+    path('api/database-configs/', include('database_configs.urls')),
     path('api/environments/', include('environments.urls')),
+    path('api/functions/', include('functions.urls')),
+    path('api/health/', health_check),
     path('api/interfaces/', include('interfaces.urls')),
     path('api/modules/', include('modules.urls')),
-    path('api/functions/', include('functions.urls')),
+    path('api/projects/', include('projects.urls')),
+    path('api/sync/', include('sync.urls')),
     path('api/testcases/', include('testcases.urls')),
     path('api/testtasks/', include('testtasks.urls')),
-    path('api/database-configs/', include('database_configs.urls')),
+    path('api/users/', include('users.urls')),
+    # dashboard路由放在最后,因为它匹配 'api/',避免覆盖其他更具体的路由
     path('api/', include('dashboard.urls')),
-    path('api/sync/', include('sync.urls')),
     
     # swagger文档
     re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]
-
-
-from django.http import JsonResponse
-
-def health_check(request):
-    """健康检查接口"""
-    return JsonResponse({"status": "ok"})
-
-urlpatterns.append(path('api/health/', health_check))
