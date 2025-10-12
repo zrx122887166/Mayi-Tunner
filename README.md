@@ -6,6 +6,9 @@ TestRunner 是一个基于 Django 和 HttpRunner 构建的自动化测试平台,
 
 ## 项目截图
 
+### 登录页面
+<img width="1912" height="895" alt="image" src="https://github.com/user-attachments/assets/065e5601-3d48-402f-a6a5-a378dc872792" />
+
 ### 仪表盘界面
 ![image](https://github.com/user-attachments/assets/a0dcd494-5e9e-49f0-a42c-d92f7d49e13c)
 
