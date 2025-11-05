@@ -450,6 +450,8 @@ TestRunner 平台的使用流程简单直观，从项目创建到测试执行，
 - 提交 Issue
 - 发起 Pull Request
 - 联系项目维护者
+- <img width="753" height="756" alt="image" src="https://github.com/user-attachments/assets/92a60d1e-bc82-4338-9867-6b0ba800e3ff" />
+
 
 ---
 
