@@ -55,6 +55,7 @@ urlpatterns = [
     path('api/testcases/', include('testcases.urls')),
     path('api/testtasks/', include('testtasks.urls')),
     path('api/users/', include('users.urls')),
+    path('api/', include('pythontool.urls')),
     # dashboard路由放在最后,因为它匹配 'api/',避免覆盖其他更具体的路由
     path('api/', include('dashboard.urls')),
     

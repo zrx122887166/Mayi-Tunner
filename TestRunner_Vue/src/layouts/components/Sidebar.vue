@@ -12,13 +12,16 @@ import {
   IconCode,
   IconList,
   IconUser,
-  IconFile
+  IconFile,
+  IconCaretDown,
+  IconRight,
 } from '@arco-design/web-vue/es/icon'
 
 const router = useRouter()
 const route = useRoute()
 const projectStore = useProjectStore()
 const isCollapsed = ref(false)
+const scriptToolsExpanded = ref(false)
 
 // 计算是否有项目
 const hasProjects = computed(() => projectStore.projects.length > 0)
@@ -216,6 +219,83 @@ defineExpose({
           <IconUser class="tw-text-blue-500 tw-w-5 tw-h-5" />
           <div v-if="!isCollapsed" class="tw-ml-3 tw-text-gray-300">用户管理</div>
         </div>
+
+        <!-- 脚本工具父菜单 - 移动到用户管理下面 -->
+        <div 
+          class="menu-item tw-flex tw-items-center tw-cursor-pointer tw-rounded-lg tw-mx-2 tw-mt-2 tw-transition-all"
+          :class="{ 
+            'tw-bg-gray-800/90': route.name === 'script-create' || route.name === 'script-tools' || route.name === 'script-deps',
+            'tw-bg-gray-800/40': !(route.name === 'script-create' || route.name === 'script-tools' || route.name === 'script-deps'),
+            'tw-px-4 tw-py-2.5': !isCollapsed,
+            'tw-p-2.5 tw-justify-center': isCollapsed
+          }"
+          @click="scriptToolsExpanded = !scriptToolsExpanded"
+        >
+          <IconCode class="tw-text-blue-500 tw-w-5 tw-h-5" />
+          <div v-if="!isCollapsed" class="tw-ml-3 tw-text-gray-300">脚本工具</div>
+          <component 
+            v-if="!isCollapsed"
+            :is="scriptToolsExpanded ? IconCaretDown : IconRight" 
+            class="tw-text-gray-400 tw-w-4 tw-h-4 ml-auto"
+          />
+        </div>
+
+        <!-- 脚本工具子菜单 -->
+        <div 
+          v-if="!isCollapsed || scriptToolsExpanded"
+          class="tw-transition-all tw-duration-300 tw-overflow-hidden"
+          :class="{
+            'tw-h-0 tw-opacity-0': !scriptToolsExpanded,
+            'tw-h-auto tw-opacity-100': scriptToolsExpanded,
+            'tw-ml-2': !isCollapsed,
+            'tw-ml-0': isCollapsed
+          }"
+        >
+          <!-- 创建脚本子菜单 -->
+          <div
+            class="menu-item tw-flex tw-items-center tw-cursor-pointer tw-rounded-lg tw-mx-2 tw-mt-1 tw-transition-all"
+            :class="{
+              'tw-bg-gray-800/90': route.name === 'script-create',
+              'tw-bg-gray-800/40': route.name !== 'script-create',
+              'tw-px-4 tw-py-2.5': !isCollapsed,
+              'tw-p-2.5 tw-justify-center': isCollapsed
+            }"
+            @click="handleMenuClick('script-create')"
+          >
+            <IconCode class="tw-text-blue-500 tw-w-4 tw-h-4" />
+            <div v-if="!isCollapsed" class="tw-ml-3 tw-text-gray-300 tw-text-sm">创建脚本</div>
+          </div>
+
+          <!-- 脚本工具子菜单 -->
+          <div
+            class="menu-item tw-flex tw-items-center tw-cursor-pointer tw-rounded-lg tw-mx-2 tw-mt-1 tw-transition-all"
+            :class="{
+              'tw-bg-gray-800/90': route.name === 'script-tools',
+              'tw-bg-gray-800/40': route.name !== 'script-tools',
+              'tw-px-4 tw-py-2.5': !isCollapsed,
+              'tw-p-2.5 tw-justify-center': isCollapsed
+            }"
+            @click="handleMenuClick('script-tools')"
+          >
+            <IconCode class="tw-text-blue-500 tw-w-4 tw-h-4" />
+            <div v-if="!isCollapsed" class="tw-ml-3 tw-text-gray-300 tw-text-sm">脚本工具</div>
+          </div>
+
+          <!-- 脚本依赖子菜单 -->
+          <div
+            class="menu-item tw-flex tw-items-center tw-cursor-pointer tw-rounded-lg tw-mx-2 tw-mt-1 tw-transition-all"
+            :class="{
+              'tw-bg-gray-800/90': route.name === 'script-deps',
+              'tw-bg-gray-800/40': route.name !== 'script-deps',
+              'tw-px-4 tw-py-2.5': !isCollapsed,
+              'tw-p-2.5 tw-justify-center': isCollapsed
+            }"
+            @click="handleMenuClick('script-deps')"
+          >
+            <IconCode class="tw-text-blue-500 tw-w-4 tw-h-4" />
+            <div v-if="!isCollapsed" class="tw-ml-3 tw-text-gray-300 tw-text-sm">脚本依赖</div>
+          </div>
+        </div>
       </div>
 
       <!-- 收起按钮 -->
@@ -253,5 +333,17 @@ defineExpose({
   transform: translateY(-1px) !important;
   box-shadow: inset 0 1px 0 0 rgba(148, 163, 184, 0.1),
               0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* 子菜单动画优化 */
+.submenu-enter-active,
+.submenu-leave-active {
+  transition: all 0.3s ease;
+}
+
+.submenu-enter-from,
+.submenu-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
 }
 </style>

@@ -19,8 +19,8 @@ class CustomFunctionSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("函数代码长度不能超过10000个字符")
             
         # 检查是否包含函数定义
-        if not value.strip().startswith('def '):
-            raise serializers.ValidationError("代码必须以'def'开头定义一个函数")
+        # if not value.strip().startswith('def '):
+        #     raise serializers.ValidationError("代码必须以'def'开头定义一个函数")
             
         # 检查危险函数和模块
         forbidden_keywords = [

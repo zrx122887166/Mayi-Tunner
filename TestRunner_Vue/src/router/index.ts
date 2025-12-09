@@ -4,6 +4,10 @@ import MainLayout from '../layouts/MainLayout.vue'
 import { useProjectStore } from '../stores/project'
 import { Message } from '@arco-design/web-vue'
 
+import ScriptCreate from '@/views/script-tools/index.vue'
+import ScriptTools from '@/views/script-tools/index-python.vue'
+import ScriptDeps from '@/views/script-tools/index-python-rely.vue'
+
 const routes: RouteRecordRaw[] = [
   {
     path: '/login',
@@ -226,6 +230,35 @@ const routes: RouteRecordRaw[] = [
           requiresAuth: true,
           title: '同步历史'
         }
+      },
+
+      {
+        path: '/script-tools',
+        name: 'script-tools',
+        component: ScriptTools,
+        children: [
+          { path: 'create', name: 'script-create', component: ScriptCreate },
+          { path: 'deps', name: 'script-deps', component: ScriptDeps }
+        ]
+      },
+
+      {
+        path: '/script-create', // 路径可自定义
+        name: 'script-create', // 必须与Sidebar中点击的名称一致
+        component: ScriptCreate,
+        meta: { title: '创建脚本' } // 可选，用于页面标题
+      },
+      {
+        path: '/script-tools',
+        name: 'script-tools', // 必须与Sidebar中点击的名称一致
+        component: ScriptTools,
+        meta: { title: '脚本工具' }
+      },
+      {
+        path: '/script-deps',
+        name: 'script-deps', // 必须与Sidebar中点击的名称一致
+        component: ScriptDeps,
+        meta: { title: '脚本依赖' }
       },
     ],
   },

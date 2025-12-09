@@ -24,7 +24,7 @@ const handleEnvironmentDropdownVisibleChange = (visible: boolean) => {
     <div class="tw-flex tw-items-center">
       <div class="tw-text-lg tw-font-bold tw-flex tw-items-center tw-gap-2 tw-text-gray-100 tw-px-4">
         <img :src="testrunnerIcon" alt="TestRunner" class="tw-w-8 tw-h-8" />
-        <span>TestRunner</span>
+        <span>蚂蚁自动化测试平台</span>
       </div>
 
       <div class="tw-h-14 tw-flex tw-items-center tw-border-l tw-border-gray-600/30">

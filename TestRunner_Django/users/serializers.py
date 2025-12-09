@@ -127,3 +127,9 @@ class LoginUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'is_staff', 'is_superuser']
+
+class UserSimpleSerializer(serializers.ModelSerializer):
+    """简化的用户序列化器，用于关联查询展示"""
+    class Meta:
+        model = User
+        fields = ['id', 'username']
