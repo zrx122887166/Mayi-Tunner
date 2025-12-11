@@ -1,20 +1,18 @@
 <template>
-  <div class="container">
+  <div class="container tw-h-full tw-flex tw-flex-col tw-gap-4 tw-p-4">
     <!-- 搜索框区域 -->
-    <div class="search-container">
-      <el-input
-        v-model="searchName"
-        placeholder="根据工具名称查询"
-        class="search-input"
-        @input="handleInput"
-        clearable
-        :maxlength="50"
-      />
-      <el-button @click="searchTools" class="search-btn" :loading="searchLoading">
-        <el-icon v-if="searchLoading" class="el-icon-loading" />
-        查询
-      </el-button>
-      <el-button type="primary" @click="openAddDialog" class="add-btn">新建</el-button>
+    <div class="search-container tw-bg-gray-800/50 tw-rounded-lg tw-shadow-dark tw-px-6 tw-py-4 tw-flex tw-items-center tw-gap-4">
+      <div class="search-input-wrapper">
+        <el-input
+          v-model="searchName"
+          placeholder="根据工具名称查询"
+          class="search-input"
+          @input="handleInput"
+          clearable
+          :maxlength="50"
+        />
+      </div>
+      <el-button type="primary" @click="openAddDialog" class="add-btn">新建工具</el-button>
     </div>
 
     <!-- 主弹窗 -->
@@ -27,164 +25,200 @@
       @closed="handleDialogClosed"
       class="custom-dialog"
     >
-      <!-- 表单部分 -->
+      <!-- 使用 el-form 包裹表单内容 -->
       <el-form
+        ref="formRef"
         :model="projectForm"
         :rules="formRules"
-        ref="formRef"
-        label-width="120px"
-        status-icon
-        class="main-form"
+        label-width="0"
+        @submit.prevent="submit"
       >
-        <!-- 工具名称 -->
-        <el-form-item label="工具名称" class="form-item" prop="name">
-          <el-input 
-            v-model="projectForm.name" 
-            placeholder="请输入工具名称" 
-            :maxlength="100"
-            show-word-limit
-          />
-        </el-form-item>
-        
-        <!-- 工具备注 -->
-        <el-form-item label="工具备注" class="form-item" prop="remark">
-          <el-input
-            type="textarea"
-            v-model="projectForm.remark"
-            placeholder="请输入工具备注/使用说明"
-            rows="3"
-            :maxlength="500"
-            show-word-limit
-          />
-        </el-form-item>
-        
-        <!-- 参数设置 -->
-        <el-form-item label="参数设置" class="form-item">
-          <el-switch v-model="projectForm.has_params" @change="handleParamChange" />
-        </el-form-item>
-        
-        <!-- 连接池选择 -->
-        <el-form-item label="脚本依赖" class="form-item">
-          <el-select
-            v-model="projectForm.selectedConnectPools"
-            multiple
-            placeholder="脚本依赖选择"
-            collapse-tags
-          >
-            <el-option label="ConnectInfoPool" value="ConnectInfoPool"></el-option>
-            <el-option label="MbMysqlRedisConnectPool" value="MbMysqlRedisConnectPool"></el-option>
-          </el-select>
-        </el-form-item>
-        
-        <!-- 参数表格 -->
-        <div v-if="projectForm.has_params" class="params-table-container">
-          <el-form-item>
-            <el-table :data="projectForm.params" style="width: 100%" table-layout="auto">
-              <!-- 参数展示名称 -->
-              <el-table-column label="参数展示名称" min-width="150">
-                <template #default="scope">
-                  <el-input
-                    v-model="scope.row.show_name"
-                    placeholder="用于展示在页面上的参数名称"
-                    :maxlength="50"
+        <div class="dialog-content">
+          <!-- 基础信息部分 -->
+          <div class="section basic-info">
+            <div class="section-header">
+              <div class="section-title">基础信息</div>
+            </div>
+            <div class="section-body">
+              <div class="form-row">
+                <div class="form-label">工具名称<span class="required-mark">*</span></div>
+                <div class="form-field">
+                  <el-form-item prop="name" class="tw-w-full">
+                    <el-input 
+                      v-model="projectForm.name" 
+                      placeholder="请输入工具名称" 
+                      :maxlength="100"
+                      class="custom-input"
+                    />
+                  </el-form-item>
+                </div>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-label">工具备注</div>
+                <div class="form-field">
+                  <el-form-item prop="remark" class="tw-w-full">
+                    <el-input
+                      type="textarea"
+                      v-model="projectForm.remark"
+                      placeholder="请输入工具备注/使用说明"
+                      rows="3"
+                      :maxlength="500"
+                      class="custom-textarea"
+                    />
+                  </el-form-item>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 参数设置部分 -->
+          <div class="section params-section">
+            <div class="section-header">
+              <div class="section-title">参数设置</div>
+            </div>
+            <div class="section-body">
+              <!-- 参数设置开关 -->
+              <div class="form-row switch-row">
+                <div class="form-label">启用参数</div>
+                <div class="form-field switch-field">
+                  <el-switch v-model="projectForm.has_params" @change="handleParamChange" />
+                </div>
+              </div>
+              
+              <!-- 参数表格 -->
+              <div v-if="projectForm.has_params" class="params-table-wrapper">
+                <div class="table-container">
+                  <table class="params-table">
+                    <thead>
+                      <tr>
+                        <th class="param-header">参数展示名称</th>
+                        <th class="param-header">参数名</th>
+                        <th class="param-header">参数值</th>
+                        <th class="param-header">默认值</th>
+                        <th class="param-header">展示</th>
+                        <th class="param-header operation-header">操作</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="(param, index) in projectForm.params" :key="index">
+                        <td class="param-cell">
+                          <el-input
+                            v-model="param.show_name"
+                            placeholder="用于展示在页面上的参数名称"
+                            :maxlength="50"
+                            class="table-input"
+                          />
+                        </td>
+                        <td class="param-cell">
+                          <el-input
+                            v-model="param.name"
+                            placeholder="程序使用需要的参数名"
+                            :maxlength="50"
+                            class="table-input"
+                          />
+                        </td>
+                        <td class="param-cell">
+                          <el-input
+                            v-model="param.keys"
+                            placeholder="多个值以;;隔开"
+                            :maxlength="200"
+                            class="table-input"
+                          />
+                        </td>
+                        <td class="param-cell">
+                          <el-input
+                            v-model="param.default"
+                            placeholder="可提供默认值给用户"
+                            :maxlength="100"
+                            class="table-input"
+                          />
+                        </td>
+                        <td class="param-cell">
+                          <div class="switch-cell">
+                            <el-switch v-model="param.is_show" size="small" />
+                          </div>
+                        </td>
+                        <td class="param-cell actions">
+                          <div class="action-buttons">
+                            <el-button
+                              type="text"
+                              @click="addParamItem(projectForm.params)"
+                              class="action-btn add-btn"
+                            >新增</el-button>
+                            <el-button
+                              type="text"
+                              @click="removeParamItem(projectForm.params, index)"
+                              v-if="projectForm.params.length > 1"
+                              class="action-btn delete-btn"
+                            >删除</el-button>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              
+              <!-- 脚本依赖 -->
+              <div class="form-row">
+                <div class="form-label">脚本依赖</div>
+                <div class="form-field">
+                  <el-select
+                    v-model="projectForm.selectedConnectPools"
+                    multiple
+                    placeholder="请选择脚本依赖"
+                    collapse-tags
+                    class="custom-select"
+                    :popper-class="'script-deps-dropdown'"
+                  >
+                    <el-option label="ConnectInfoPool" value="ConnectInfoPool"></el-option>
+                    <el-option label="MbMysqlRedisConnectPool" value="MbMysqlRedisConnectPool"></el-option>
+                  </el-select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 脚本提示部分 -->
+          <div class="section tips-section">
+            <div class="tip-content">
+              <div class="tip-icon">
+                <el-icon><InfoFilled /></el-icon>
+              </div>
+              <div class="tip-text">
+                提示：建议使用本地 PyCharm 联调通过后，再进行复制。具体可参考【脚本工具案例】
+              </div>
+            </div>
+          </div>
+
+          <!-- Python脚本部分 -->
+          <div class="section script-section">
+            <div class="section-header">
+              <div class="section-title">Python 脚本<span class="required-mark">*</span></div>
+            </div>
+            <div class="section-body">
+              <div class="script-editor-wrapper">
+                <el-form-item prop="pythonScript" class="tw-w-full">
+                  <Coder
+                    :lang="'python'"
+                    :content="projectForm.pythonScript"
+                    @updateScript="updateScript"
+                    class="custom-coder"
                   />
-                </template>
-              </el-table-column>
-              
-              <!-- 参数名 -->
-              <el-table-column label="参数名" min-width="120">
-                <template #default="scope">
-                  <el-input
-                    v-model="scope.row.name"
-                    placeholder="程序使用需要的参数名"
-                    :maxlength="50"
-                  />
-                </template>
-              </el-table-column>
-              
-              <!-- 参数值 -->
-              <el-table-column label="参数值" min-width="180">
-                <template #default="scope">
-                  <el-input
-                    v-model="scope.row.keys"
-                    placeholder="多个值以;;隔开"
-                    :maxlength="200"
-                  />
-                </template>
-              </el-table-column>
-              
-              <!-- 默认值 -->
-              <el-table-column label="默认值" min-width="120">
-                <template #default="scope">
-                  <el-input
-                    v-model="scope.row.default"
-                    placeholder="可提供默认值给用户"
-                    :maxlength="100"
-                  />
-                </template>
-              </el-table-column>
-              
-              <!-- 展示 -->
-              <el-table-column label="展示" width="100">
-                <template #default="scope">
-                  <el-switch v-model="scope.row.is_show" />
-                </template>
-              </el-table-column>
-              
-              <!-- 操作 -->
-              <el-table-column label="操作" width="160" align="center">
-                <template #default="scope">
-                  <el-button
-                    type="text"
-                    @click="addParamItem(projectForm.params)"
-                    class="table-btn"
-                  >新增</el-button>
-                  <el-button
-                    type="text"
-                    text-color="#ff4d4f"
-                    @click="removeParamItem(projectForm.params, scope.$index)"
-                    v-if="projectForm.params.length > 1"
-                    class="table-btn"
-                  >删除</el-button>
-                </template>
-              </el-table-column>
-            </el-table>
-          </el-form-item>
-        </div>
-        
-        <!-- 脚本工具提示 -->
-        <div class="script-tips-container">
-          <div class="tips">
-            提示：建议使用本地 PyCharm 联调通过后，再进行复制。具体可参考【脚本工具案例】
-            <el-tooltip
-              class="box-item"
-              effect="dark"
-              placement="top-start"
-            >
-              <template #content>
-                <pre>{{ scriptExample }}</pre>
-              </template>
-              <el-icon class="iconfont icon-tishi" />
-            </el-tooltip>
+                </el-form-item>
+              </div>
+            </div>
           </div>
         </div>
-        
-        <!-- 脚本编辑区域 -->
-        <el-form-item label="Python 脚本" class="form-item script-editor" prop="scripts">
-          <Coder
-            :lang="'python'"
-            :content="projectForm.scripts"
-            @updateScript="updateScript"
-          />
-        </el-form-item>
       </el-form>
       
       <!-- 弹窗底部按钮 -->
       <template #footer>
-        <span class="dialog-footer">
-          <el-button @click="close">取消</el-button>
-          <el-button type="primary" @click="submit" :loading="submitLoading">确认</el-button>
-        </span>
+        <div class="dialog-footer">
+          <el-button @click="close" class="cancel-btn">取消</el-button>
+          <el-button type="primary" @click="submit" :loading="submitLoading" class="confirm-btn">确认</el-button>
+        </div>
       </template>
     </el-dialog>
     
@@ -196,37 +230,39 @@
       :close-on-click-modal="false"
       class="custom-dialog"
     >
-      <el-form 
-        :model="addSubTypeForm" 
-        :rules="subTypeRules"
-        ref="subTypeFormRef"
-        label-width="120px" 
-        class="subtype-form"
-      >
-        <el-form-item label="分类名称" class="form-item" prop="name">
-          <el-input 
-            v-model="addSubTypeForm.name" 
-            :maxlength="50"
-            show-word-limit
-          />
-        </el-form-item>
-        <el-form-item label="分类 icon" class="form-item" prop="icon">
-          <el-input 
-            v-model="addSubTypeForm.icon" 
-            placeholder="例如：el-icon-folder"
-            :maxlength="50"
-            show-word-limit
-          />
-        </el-form-item>
-        <el-form-item class="form-item btn-group">
-          <el-button type="primary" @click="addSubType" :loading="subTypeLoading">确定</el-button>
-          <el-button @click="addSubTypeDialog = false">取消</el-button>
-        </el-form-item>
-      </el-form>
+      <div class="tw-bg-gray-900/90 tw-rounded-lg tw-p-6">
+        <el-form 
+          :model="addSubTypeForm" 
+          :rules="subTypeRules"
+          ref="subTypeFormRef"
+          label-width="120px" 
+          class="subtype-form"
+        >
+          <el-form-item label="分类名称" class="form-item" prop="name">
+            <el-input 
+              v-model="addSubTypeForm.name" 
+              :maxlength="50"
+              class="tw-bg-gray-800/80 tw-text-gray-100 tw-border-gray-700"
+            />
+          </el-form-item>
+          <el-form-item label="分类 icon" class="form-item" prop="icon">
+            <el-input 
+              v-model="addSubTypeForm.icon" 
+              placeholder="例如：el-icon-folder"
+              :maxlength="50"
+              class="tw-bg-gray-800/80 tw-text-gray-100 tw-border-gray-700"
+            />
+          </el-form-item>
+          <el-form-item class="form-item btn-group">
+            <el-button @click="addSubTypeDialog = false" class="cancel-btn">取消</el-button>
+            <el-button type="primary" @click="addSubType" :loading="subTypeLoading" class="confirm-btn">确定</el-button>
+          </el-form-item>
+        </el-form>
+      </div>
     </el-dialog>
     
     <!-- 工具列表 -->
-    <div class="table-container">
+    <div class="table-container tw-bg-gray-800/50 tw-rounded-lg tw-shadow-dark tw-overflow-hidden tw-flex-grow">
       <el-table 
         :data="toolList" 
         style="width: 100%" 
@@ -253,19 +289,19 @@
       </el-table>
     </div>
     
-    <!-- 分页 -->
-    <div class="pagination-container">
-      <el-pagination
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        :current-page="currentPage"
-        :page-sizes="[5, 10, 20, 50]"
-        :page-size="pageSize"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="total"
-        :disabled="tableLoading"
-      >
-      </el-pagination>
+    <!-- 分页区域 -->
+    <div class="tw-bg-gray-800/50 tw-rounded-lg tw-shadow-dark tw-px-6 tw-py-4">
+      <a-pagination
+        v-model:current="pagination.current"
+        v-model:page-size="pagination.page_size"
+        :total="pagination.total"
+        show-total
+        show-jumper
+        show-page-size
+        class="tw-flex tw-justify-end"
+        @change="handlePageChange"
+        @page-size-change="handlePageSizeChange"
+      />
     </div>
   </div>
 </template>
@@ -276,21 +312,28 @@ import { addMenu } from '@/api/permission';
 import Coder from '@/components/Coder';
 import request from '@/utils/request';
 import { ElMessageBox, ElMessage, ElForm } from 'element-plus';
+import { formatDateTime } from '@/utils/format';
+import { InfoFilled } from '@element-plus/icons-vue';
+
+// 分页配置
+const pagination = ref({
+  total: 0,
+  current: 1,
+  page_size: 10,
+  showTotal: true,
+  showJumper: true,
+  showPageSize: true,
+});
 
 // 状态定义
 const dialogShow = ref(false);
 const addSubTypeDialog = ref(false);
 const searchName = ref('');
-const currentPage = ref(1);
-const pageSize = ref(10);
-const total = ref(0);
 const editToolId = ref(null);
 const searchLoading = ref(false);
-const submitLoading = ref(false);
 const tableLoading = ref(false);
+const submitLoading = ref(false);
 const subTypeLoading = ref(false);
-
-// 防抖定时器
 const debounceTimer = ref(null);
 
 // 表单引用
@@ -300,16 +343,25 @@ const subTypeFormRef = ref(null);
 // 表单数据
 const projectForm = ref({
   name: '',
-  sub_type: null,
-  component: '',
-  path: '',
   remark: '',
-  desc: '',
   has_params: false,
-  params: [],
-  dependency_modules: [],
-  scripts: '',  // 用于存储脚本内容
-  selectedConnectPools: []
+  selectedConnectPools: [],
+  params: [
+    {
+      show_name: '',
+      name: '',
+      keys: '',
+      default: '',
+      is_show: true
+    }
+  ],
+  pythonScript: ''
+});
+
+// 新增分类表单
+const addSubTypeForm = ref({
+  name: '',
+  icon: ''
 });
 
 // 表单验证规则
@@ -318,8 +370,12 @@ const formRules = reactive({
     { required: true, message: '请输入工具名称', trigger: 'blur' },
     { max: 100, message: '工具名称不能超过100个字符', trigger: 'blur' }
   ],
-  scripts: [
-    { required: true, message: '请输入Python脚本', trigger: 'blur' }
+  pythonScript: [
+    { required: true, message: '请输入Python脚本', trigger: 'blur' },
+    { max: 5000, message: '脚本内容不能超过5000个字符', trigger: 'blur' }
+  ],
+  remark: [
+    { max: 500, message: '工具备注不能超过500个字符', trigger: 'blur' }
   ]
 });
 
@@ -330,295 +386,192 @@ const subTypeRules = reactive({
     { max: 50, message: '分类名称不能超过50个字符', trigger: 'blur' }
   ],
   icon: [
-    { required: true, message: '请输入分类图标', trigger: 'blur' },
-    { max: 50, message: '图标名称不能超过50个字符', trigger: 'blur' }
+    { required: true, message: '请输入分类icon', trigger: 'blur' },
+    { max: 50, message: '分类icon不能超过50个字符', trigger: 'blur' }
   ]
 });
 
-// 其他数据
-const emit = defineEmits(['submit', 'close', 'getSubTypes']);
-const projectTypes = ref([]);
-const can_add = ref(true);
-const modules = ref([]);
-const addSubTypeForm = ref({ name: '', icon: '' });
 const toolList = ref([]);
 
-// 脚本示例常量
-const scriptExample = `import argparse
-
-
-if __name__ == '__main__':
-    # 如果是脚本需要进行参数设置
-    parser = argparse.ArgumentParser(description="参数设置")
-    parser.add_argument('-u', '--user_main_id', default='118315336')
-    parser.add_argument('-l', '--level', default='1')
-    parser.add_argument('-e', '--environment', default='pre')
-    parser.add_argument('-r', '--member_redis_db', default="3")
-    args = parser.parse_args()
-    test = ChangeMemberLevel(usermainId=int(args.user_main_id),
-                             level=int(args.level),
-                             environment=args.environment,
-                             member_redis_db=int(args.member_redis_db))
-    test.ch_member_level()`;
-
-// 方法定义
-const beforeClose = (done) => {
-  emit('close');
-  resetForm();
-  dialogShow.value = false;
-  done();
+// 获取工具列表
+const getToolList = async () => {
+  try {
+    tableLoading.value = true;
+    const params = {
+      page: pagination.value.current,
+      size: pagination.value.page_size,
+      name: searchName.value || ''
+    };
+    
+    const response = await request.get('/pythontool/', { params });
+    const responseData = response.data || response;
+    
+    if (responseData.results) {
+      toolList.value = responseData.results;
+      pagination.value.total = responseData.count || 0;
+    } else if (Array.isArray(responseData)) {
+      toolList.value = responseData;
+      pagination.value.total = responseData.length;
+    } else {
+      toolList.value = [];
+      pagination.value.total = 0;
+    }
+  } catch (error) {
+    console.error('获取工具列表失败:', error);
+    ElMessage.error('获取工具列表失败：' + (error.message || '网络错误'));
+    toolList.value = [];
+    pagination.value.total = 0;
+  } finally {
+    tableLoading.value = false;
+  }
 };
 
-const handleDialogClosed = () => {
-  // 弹窗关闭后的回调
-  resetForm();
+// 编辑工具
+const editTool = (item) => {
+  dialogShow.value = true;
+  editToolId.value = item.id;
+  
+  // 赋值表单数据
+  projectForm.value = {
+    name: item.name || '',
+    remark: item.remark || '',
+    has_params: item.has_params || false,
+    selectedConnectPools: item.connect_pools || [],
+    params: item.params && item.params.length ? [...item.params] : [
+      {
+        show_name: '',
+        name: '',
+        keys: '',
+        default: '',
+        is_show: true
+      }
+    ],
+    pythonScript: item.pythonScript || ''
+  };
+  
+  // 清除之前的验证状态
+  nextTick(() => {
+    if (formRef.value) {
+      formRef.value.clearValidate();
+    }
+  });
 };
 
+// 打开新增对话框
+const openAddDialog = () => {
+  resetForm();
+  editToolId.value = null;
+  dialogShow.value = true;
+  
+  // 清除之前的验证状态
+  nextTick(() => {
+    if (formRef.value) {
+      formRef.value.clearValidate();
+    }
+  });
+};
+
+// 提交表单
 const submit = async () => {
-  // 表单验证
   if (!formRef.value) return;
   
   try {
+    // 先验证表单
     const valid = await formRef.value.validate();
-    if (!valid) return;
+    if (!valid) {
+      return;
+    }
   } catch (error) {
     console.error('表单验证失败:', error);
+    ElMessage.warning('请完善表单信息');
     return;
   }
 
   try {
     submitLoading.value = true;
     
-    // 准备提交数据 - 修复字段映射
-    const submitData = {
+    // 构造请求数据
+    const requestData = {
       name: projectForm.value.name,
       remark: projectForm.value.remark,
-      scripts: projectForm.value.scripts,
+      has_params: projectForm.value.has_params,
+      connect_pools: projectForm.value.selectedConnectPools,
       params: projectForm.value.params,
-      selectedConnectPools: projectForm.value.selectedConnectPools
+      pythonScript: projectForm.value.pythonScript
     };
 
-    console.log('提交的数据:', submitData);
-
-    let apiUrl;
-    let method;
-    
+    let response;
     if (editToolId.value) {
       // 编辑操作
-      apiUrl = `/pythontool/${editToolId.value}/`;
-      method = 'put';
+      response = await request.put(`/pythontool/${editToolId.value}/`, requestData);
+      ElMessage.success('更新成功');
     } else {
       // 新增操作
-      apiUrl = '/pythontool/';
-      method = 'post';
+      response = await request.post('/pythontool/', requestData);
+      ElMessage.success('保存成功');
     }
-
-    const response = await request[method](apiUrl, submitData);
-    console.log('提交响应:', response);
-
-    // 根据实际响应结构判断成功
-    if (response && (response.id || response.message)) {
-      ElMessage.success(editToolId.value ? '更新成功' : '保存成功');
-      
-      // 立即关闭弹窗
-      dialogShow.value = false;
-      
-      // 重置表单
-      resetForm();
-      
-      // 刷新列表 - 使用 nextTick 确保 DOM 更新完成
-      nextTick(() => {
-        getToolList();
-      });
-    } else {
-      ElMessage.error(editToolId.value ? '更新失败' : '保存失败');
-    }
+    
+    dialogShow.value = false;
+    await getToolList();
+    resetForm();
+    
   } catch (error) {
-    console.error('提交出错:', error);
-    const errorMsg = error.response?.data?.error || error.response?.data?.message || error.message || (editToolId.value ? '更新失败' : '保存失败');
-    ElMessage.error(errorMsg);
+    console.error('操作失败:', error);
+    let errorMessage = '操作失败';
+    if (error.response?.data?.error) {
+      errorMessage = error.response.data.error;
+    } else if (error.response?.data?.details) {
+      errorMessage = JSON.stringify(error.response.data.details);
+    } else {
+      errorMessage = error.message || '网络错误';
+    }
+    ElMessage.error(errorMessage);
   } finally {
     submitLoading.value = false;
   }
 };
 
-// 重置表单
-const resetForm = () => {
-  if (formRef.value) {
-    formRef.value.resetFields();
-  }
-  projectForm.value = {
-    name: '',
-    sub_type: null,
-    component: '',
-    path: '',
-    remark: '',
-    desc: '',
-    has_params: false,
-    params: [],
-    dependency_modules: [],
-    scripts: '',
-    selectedConnectPools: []
-  };
-  editToolId.value = null;
-};
-
-const close = () => {
-  dialogShow.value = false;
-  resetForm();
-};
-
-const addSubType = async () => {
-  // 表单验证
-  if (!subTypeFormRef.value) return;
-  const valid = await subTypeFormRef.value.validate();
-  if (!valid) return;
-
-  try {
-    subTypeLoading.value = true;
-    await addMenu(addSubTypeForm.value);
-    addSubTypeDialog.value = false;
-    emit('getSubTypes');
-    ElMessage.success('添加分类成功');
-    addSubTypeForm.value = { name: '', icon: '' };
-  } catch (error) {
-    console.error('添加分类失败:', error);
-    ElMessage.error('添加分类失败');
-  } finally {
-    subTypeLoading.value = false;
-  }
-};
-
-const handleParamChange = () => {
-  if (projectForm.value.has_params && projectForm.value.params.length === 0) {
-    addParamItem(projectForm.value.params);
-  }
-};
-
-const addParamItem = (array) => {
-  array.push({
+// 添加参数项
+const addParamItem = (params) => {
+  params.push({
     show_name: '',
     name: '',
     keys: '',
-    is_show: true,
-    default: ''
+    default: '',
+    is_show: true
   });
 };
 
-const removeParamItem = (array, index) => {
-  array.splice(index, 1);
+// 移除参数项
+const removeParamItem = (params, index) => {
+  params.splice(index, 1);
 };
 
-const updateScript = (val) => {
-  projectForm.value.scripts = val;
-};
-
-const getToolList = async () => {
-  // 如果正在加载中，直接返回
-  if (tableLoading.value) return;
-  
-  try {
-    tableLoading.value = true;
-    const baseApi = import.meta.env.VUE_APP_BASE_API || 'http://localhost:8000';
-    
-    // 确保URL格式正确，避免301重定向
-    let url = `${baseApi}/api/pythontool/`; // 确保以斜杠结尾
-    
-    // 构建查询参数
-    const params = new URLSearchParams();
-    params.append('page', currentPage.value);
-    params.append('size', pageSize.value);
-    
-    if (searchName.value) {
-      params.append('name', searchName.value);
-    }
-    
-    const queryString = params.toString();
-    if (queryString) {
-      url += `?${queryString}`;
-    }
-    
-    console.log('请求URL:', url);
-    
-    const response = await request.get(url);
-    console.log('完整响应:', response);
-    
-    // 处理响应数据
-    let responseData = response;
-    
-    // 检查 response 是否有 data 属性
-    if (response && typeof response === 'object' && 'data' in response) {
-      responseData = response.data;
-    }
-    
-    console.log('处理后的响应数据:', responseData);
-    
-    // 安全地获取数据
-    if (responseData && responseData.results) {
-      toolList.value = responseData.results;
-      total.value = responseData.count || 0;
-    } else if (Array.isArray(responseData)) {
-      // 如果直接返回数组
-      toolList.value = responseData;
-      total.value = responseData.length;
-    } else {
-      console.warn('未识别的响应格式:', responseData);
-      toolList.value = [];
-      total.value = 0;
-    }
-  } catch (error) {
-    console.error('获取工具列表失败:', error);
-    console.error('错误详情:', error.response);
-    ElMessage.error('获取工具列表失败: ' + (error.message || '网络错误'));
-  } finally {
-    tableLoading.value = false;
-  }
-};
-
-const editTool = async (item) => {
-  console.log('编辑工具数据:', item);
-  
-  try {
-    // 先获取最新的工具详情
-    const baseApi = import.meta.env.VUE_APP_BASE_API || 'http://localhost:8000';
-    const detailUrl = `${baseApi}/api/pythontool/${item.id}/`;
-    
-    const response = await request.get(detailUrl);
-    const toolDetail = response.data || response;
-    
-    console.log('工具详情:', toolDetail);
-    
-    dialogShow.value = true;
-    
-    // 使用 nextTick 确保 DOM 更新完成后再设置表单数据
-    nextTick(() => {
-      // 修复字段映射
-      projectForm.value = {
-        name: toolDetail.name || '',
-        remark: toolDetail.remark || '',
-        scripts: toolDetail.pythonScript || '', // 注意这里改为 pythonScript
-        has_params: toolDetail.has_params || false,
-        selectedConnectPools: toolDetail.connect_pools || [], // 注意这里改为 connect_pools
-        params: toolDetail.params || [],
-        // 其他字段保持默认值
-        sub_type: null,
-        component: '',
-        path: '',
-        desc: '',
-        dependency_modules: []
-      };
-      editToolId.value = item.id;
-
-      if (projectForm.value.has_params && projectForm.value.params.length === 0) {
-        addParamItem(projectForm.value.params);
+// 参数开关变化
+const handleParamChange = (val) => {
+  if (val && (!projectForm.value.params || projectForm.value.params.length === 0)) {
+    projectForm.value.params = [
+      {
+        show_name: '',
+        name: '',
+        keys: '',
+        default: '',
+        is_show: true
       }
-    });
-  } catch (error) {
-    console.error('获取工具详情失败:', error);
-    ElMessage.error('获取工具详情失败');
+    ];
   }
 };
 
+// 更新脚本内容
+const updateScript = (content) => {
+  projectForm.value.pythonScript = content;
+  // 触发验证
+  if (formRef.value) {
+    formRef.value.validateField('pythonScript');
+  }
+};
+
+// 删除工具
 const deleteTool = async (item) => {
   try {
     await ElMessageBox.confirm(
@@ -631,724 +584,818 @@ const deleteTool = async (item) => {
       }
     );
     
-    const baseApi = import.meta.env.VUE_APP_BASE_API || 'http://localhost:8000';
-    const deleteUrl = `${baseApi}/api/pythontool/${item.id}/`;
-    
-    // 发送删除请求，不关心响应内容
-    await request.delete(deleteUrl);
-    
-    // 总是显示成功并刷新列表
+    await request.delete(`/pythontool/${item.id}/`);
     ElMessage.success('删除成功');
     
-    // 强制刷新列表
-    await getToolList();
-    
+    // 更新列表
+    const index = toolList.value.findIndex(tool => tool.id === item.id);
+    if (index !== -1) {
+      toolList.value.splice(index, 1);
+      pagination.value.total -= 1;
+      
+      // 处理分页
+      if (toolList.value.length === 0 && pagination.value.current > 1) {
+        pagination.value.current -= 1;
+        getToolList();
+      }
+    }
   } catch (error) {
-    if (error.name !== 'CancelError') {
-      console.error('删除出错:', error);
-      ElMessage.error('删除失败');
+    if (error !== 'cancel') {
+      console.error('删除失败:', error);
+      ElMessage.error('删除失败：' + (error.message || '网络错误'));
     }
   }
 };
 
-// 打开新增对话框
-const openAddDialog = () => {
-  resetForm();
-  dialogShow.value = true;
+// 添加分类
+const addSubType = async () => {
+  if (!subTypeFormRef.value) return;
+  
+  try {
+    await subTypeFormRef.value.validate();
+  } catch (error) {
+    console.error('分类表单验证失败:', error);
+    ElMessage.error('请完善分类信息');
+    return;
+  }
+  
+  try {
+    subTypeLoading.value = true;
+    await addMenu(addSubTypeForm.value);
+    ElMessage.success('分类添加成功');
+    addSubTypeDialog.value = false;
+    addSubTypeForm.value = { name: '', icon: '' };
+  } catch (error) {
+    console.error('添加分类失败:', error);
+    ElMessage.error('添加分类失败：' + (error.message || '网络错误'));
+  } finally {
+    subTypeLoading.value = false;
+  }
 };
 
-// 处理搜索输入 - 修复防抖逻辑
+// 重置表单
+const resetForm = () => {
+  projectForm.value = {
+    name: '',
+    remark: '',
+    has_params: false,
+    selectedConnectPools: [],
+    params: [
+      {
+        show_name: '',
+        name: '',
+        keys: '',
+        default: '',
+        is_show: true
+      }
+    ],
+    pythonScript: ''
+  };
+  
+  if (formRef.value) {
+    formRef.value.resetFields();
+  }
+};
+
+// 关闭弹窗
+const close = () => {
+  dialogShow.value = false;
+};
+
+// 弹窗关闭前回调
+const beforeClose = (done) => {
+  done();
+};
+
+// 弹窗关闭后处理
+const handleDialogClosed = () => {
+  resetForm();
+};
+
+// 搜索相关
 const handleInput = (val) => {
-  // 清除之前的定时器
   if (debounceTimer.value) {
     clearTimeout(debounceTimer.value);
   }
-  
-  // 设置新的定时器
   debounceTimer.value = setTimeout(() => {
-    // 输入为空时自动搜索
-    if (!val) {
-      currentPage.value = 1;
-      getToolList();
-    }
+    searchTools();
   }, 500);
 };
 
-const handleSizeChange = (newSize) => {
-  pageSize.value = newSize;
-  currentPage.value = 1; // 重置到第一页
-  getToolList();
-};
-
-const handleCurrentChange = (newPage) => {
-  currentPage.value = newPage;
-  getToolList();
-};
-
 const searchTools = () => {
-  currentPage.value = 1;
+  pagination.value.current = 1;
   getToolList();
 };
 
-// 格式化日期时间
-const formatDateTime = (dateString) => {
-  if (!dateString) return '';
-  const date = new Date(dateString);
-  return date.toLocaleString('zh-CN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit'
-  }).replace(/\//g, '-');
+// 分页相关
+const handlePageChange = (current) => {
+  pagination.value.current = current;
+  getToolList();
 };
 
-// 生命周期
+const handlePageSizeChange = (size) => {
+  pagination.value.page_size = size;
+  pagination.value.current = 1;
+  getToolList();
+};
+
+// 页面挂载时获取列表
 onMounted(() => {
   getToolList();
-});
-
-// 暴露变量和方法
-defineExpose({
-  dialogShow,
-  addSubTypeDialog,
-  projectForm,
-  toolList,
-  currentPage,
-  pageSize,
-  total,
-  searchName,
-  editToolId,
-  addSubTypeForm,
-  projectTypes,
-  can_add,
-  modules,
-  beforeClose,
-  submit,
-  close,
-  addSubType,
-  handleParamChange,
-  addParamItem,
-  removeParamItem,
-  updateScript,
-  getToolList,
-  editTool,
-  deleteTool,
-  handleSizeChange,
-  handleCurrentChange,
-  searchTools,
-  handleInput
 });
 </script>
 
 <style scoped>
-/* 全局样式重置 */
 .container {
-  width: 100%;
-  padding: 0;
-  margin: 0;
+  height: 100%;
   box-sizing: border-box;
-  background-color: rgba(31, 41, 55, 0.5);
-  min-height: 100vh;
 }
 
-/* 搜索区域样式 */
+/* 搜索框区域 */
 .search-container {
   display: flex;
   align-items: center;
-  margin: 20px;
-  gap: 10px;
-  flex-wrap: wrap;
-  background-color: rgba(55, 65, 81, 0.5);
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  gap: 12px;
+}
+
+.search-input-wrapper {
+  width: 280px;
 }
 
 .search-input {
-  width: 280px;
-  min-width: 200px;
-  flex: 1;
-  max-width: 400px;
-}
-
-.search-btn {
-  background: linear-gradient(to right, #4f46e5, #7c3aed);
-  border: none;
-  color: #fff;
-  border-radius: 8px;
-  padding: 0 20px;
-  height: 36px;
-  transition: all 0.3s ease;
-}
-
-.search-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+  width: 100%;
 }
 
 .add-btn {
-  background: linear-gradient(to right, #3b82f6, #1d4ed8);
-  border: none;
-  color: #fff;
-  margin-left: auto;
-  padding: 0 24px;
-  height: 36px;
+  flex-shrink: 0;
+}
+
+/* 弹窗内容样式 - 统一背景色 */
+.dialog-content {
+  background-color: #121826;
   border-radius: 8px;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+  padding: 20px;
 }
 
-.add-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-  background: linear-gradient(to right, #2563eb, #60a5fa);
+.section {
+  margin-bottom: 24px;
 }
 
-.add-btn:active {
-  transform: translateY(1px);
-  box-shadow: 0 1px 3px rgba(59, 130, 246, 0.3);
+.section:last-child {
+  margin-bottom: 0;
 }
 
-/* 表单样式 */
-.main-form, .subtype-form {
-  margin: 20px;
+.section-header {
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.form-item {
-  margin-bottom: 18px;
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #e5e7eb;
+  position: relative;
+  padding-left: 12px;
+}
+
+.section-title::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 16px;
+  background-color: #409eff;
+  border-radius: 2px;
+}
+
+.section-body {
+  padding: 0 8px;
+}
+
+/* 表单行样式 */
+.form-row {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.form-row:last-child {
+  margin-bottom: 0;
+}
+
+/* 启用参数行 - 水平对齐优化 */
+.switch-row {
+  align-items: center !important;
+  min-height: 40px;
+}
+
+.switch-field {
+  display: flex;
+  align-items: center;
+  height: 40px;
+}
+
+.form-label {
+  width: 120px;
+  flex-shrink: 0;
+  font-size: 14px;
+  color: #9ca3af;
+  padding-top: 8px;
+}
+
+/* 必填标识样式 */
+.required-mark {
+  color: #f56c6c;
+  margin-left: 4px;
+  font-size: 14px;
+}
+
+/* 启用参数标签取消顶部内边距，保证水平对齐 */
+.switch-row .form-label {
+  padding-top: 0 !important;
+}
+
+.form-field {
+  flex: 1;
+}
+
+/* 输入框样式 */
+.custom-input,
+.custom-textarea,
+.custom-select {
+  width: 100%;
+}
+
+/* 工具备注输入框 - 增加边框展示 */
+.custom-textarea {
+  border: 1px solid rgba(59, 130, 246, 0.4) !important;
+  border-radius: 6px !important;
 }
 
 /* 参数表格样式 */
-.params-table-container {
-  margin: 15px 0;
-  padding: 10px;
-  border-radius: 4px;
-  border: 1px solid rgba(148, 163, 184, 0.1);
-  background-color: rgba(30, 41, 59, 0.3);
-}
-
-/* 表格按钮样式 */
-.table-btn {
-  margin: 0 auto;
-  display: inline-flex;
-  align-items: center;
-  height: 100%;
-}
-
-/* 脚本提示区域 */
-.script-tips-container {
-  margin: 15px 0;
-  padding: 12px;
-  background-color: rgba(30, 41, 59, 0.3);
-  border-radius: 4px;
-  font-size: 14px;
-  color: #94a3b8;
-}
-
-.tips {
-  line-height: 1.6;
-  color: #94a3b8;
-}
-
-/* 脚本编辑区域 */
-.script-editor {
-  margin-top: 20px;
-}
-
-/* 工具列表表格样式 */
-.table-container {
-  margin: 20px;
-  border-radius: 8px;
-  border: 1px solid rgba(148, 163, 184, 0.1);
+.params-table-wrapper {
+  margin-top: 16px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
   overflow: hidden;
-  background-color: rgba(55, 65, 81, 0.5);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.params-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: rgba(30, 41, 59, 0.3);
+}
+
+.param-header {
+  background-color: rgba(30, 41, 59, 0.8) !important; /* 调整为更浅的颜色 */
+  color: #94a3b8;
+  font-weight: 500;
+  text-align: left;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  white-space: nowrap;
+  /* 修复问题2：表头垂直居中 */
+  vertical-align: middle;
+}
+
+/* 修复问题2：操作列头单独样式 */
+.operation-header {
+  text-align: center !important;
+}
+
+.param-cell {
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background-color: rgba(30, 41, 59, 0.2);
+  /* 修复问题2：单元格垂直居中 */
+  vertical-align: middle;
+}
+
+.param-cell:last-child {
+  border-right: none;
+}
+
+/* 修复问题2：操作列样式优化 */
+.param-cell.actions {
+  min-width: 140px;
+  text-align: center;
+  padding: 0; /* 移除默认padding，避免间距问题 */
+}
+
+.table-input {
+  width: 100%;
+}
+
+.switch-cell {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  min-height: 32px;
+}
+
+/* 修复问题2：操作按钮容器样式 */
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  /* 修复垂直居中 - 填充单元格高度 */
+  height: 100%;
+  padding: 14px 16px;
+  box-sizing: border-box;
+}
+
+.action-btn {
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+.action-btn.add-btn {
+  color: #409eff;
+}
+
+.action-btn.delete-btn {
+  color: #f56c6c;
+}
+
+/* 提示信息样式 */
+.tips-section {
+  background-color: rgba(59, 130, 246, 0.05);
+  border-radius: 6px;
+  padding: 14px 16px;
+  border-left: 4px solid rgba(59, 130, 246, 0.6);
+  margin-bottom: 24px;
+}
+
+.tip-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.tip-icon {
+  color: #409eff;
+  font-size: 18px;
+  padding-top: 2px;
+}
+
+.tip-text {
+  flex: 1;
+  color: #9ca3af;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* 脚本编辑器样式 */
+.script-section {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 16px;
+}
+
+.script-editor-wrapper {
+  margin-top: 12px;
+}
+
+.custom-coder {
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+/* 弹窗底部按钮 */
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.cancel-btn {
+  background-color: rgba(55, 65, 81, 0.6);
+  border-color: rgba(75, 85, 99, 0.6);
+  color: #d1d5db;
+  min-width: 80px;
+  transition: all 0.2s ease;
+}
+
+.cancel-btn:hover {
+  background-color: rgba(75, 85, 99, 0.8);
+  border-color: rgba(107, 114, 128, 0.8);
+  color: #fff;
+}
+
+.confirm-btn {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.9) 0%, rgba(79, 70, 229, 0.9) 100%);
+  border-color: transparent;
+  min-width: 80px;
+  transition: all 0.2s ease;
+}
+
+.confirm-btn:hover {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 1) 0%, rgba(79, 70, 229, 1) 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+/* 工具列表样式 */
+.table-container {
+  width: 100%;
+  overflow: hidden;
 }
 
 .tool-table {
-  border-bottom: none;
+  width: 100%;
+  margin: 0;
 }
 
 .table-operation-btn {
   margin-right: 8px;
 }
 
-.edit-btn {
-  background: linear-gradient(to right, #728bb4, #2563eb) !important;
-  border: none !important;
+/* 深度选择器样式 */
+:deep(.el-dialog) {
+  background-color: #121826;
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
 }
 
-.edit-btn:hover {
-  background: linear-gradient(to right, #6181c2, #2563eb) !important;
+:deep(.el-dialog__header) {
+  padding: 20px 20px 10px;
+  margin: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.delete-btn {
-  background: linear-gradient(to right, #4549ed, #ff6464) !important;
-  border: none !important;
+:deep(.el-dialog__title) {
+  color: #f3f4f6;
+  font-weight: 600;
+  font-size: 18px;
 }
 
-.delete-btn:hover {
-  background: linear-gradient(to right, #ff6464, #4549ed) !important;
+:deep(.el-dialog__headerbtn) {
+  top: 20px;
+  right: 20px;
 }
 
-/* 分页样式 */
-.pagination-container {
-  text-align: right;
-  margin: 20px;
-  padding: 10px 0;
-  background-color: rgba(55, 65, 81, 0.5);
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+:deep(.el-dialog__headerbtn .el-dialog__close) {
+  color: #9ca3af;
+  font-size: 18px;
 }
 
-/* 弹窗底部按钮 */
-.dialog-footer {
-  text-align: right;
+:deep(.el-dialog__headerbtn:hover .el-dialog__close) {
+  color: #f3f4f6;
 }
 
-/* 分类弹窗按钮组 */
-.btn-group {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
+:deep(.el-dialog__body) {
+  padding: 20px;
+}
+
+/* 搜索框样式调整 */
+:deep(.search-input .el-input__wrapper) {
+  background-color: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  box-shadow: none;
+  transition: all 0.2s ease;
+}
+
+:deep(.search-input .el-input__wrapper:hover) {
+  border-color: rgba(59, 130, 246, 0.4);
+  background-color: rgba(30, 41, 59, 0.8);
+}
+
+:deep(.search-input .el-input__wrapper.is-focus) {
+  border-color: rgba(59, 130, 246, 0.8);
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.2);
+  background-color: rgba(30, 41, 59, 0.9);
+}
+
+:deep(.search-input .el-input__inner) {
+  color: #e5e7eb;
+  background-color: transparent !important;
+}
+
+:deep(.search-input .el-input__clear) {
+  color: #9ca3af;
+}
+
+:deep(.search-input .el-input__clear:hover) {
+  color: #e5e7eb;
+}
+
+/* 工具名称输入框 - 移除背景色 */
+:deep(.custom-input .el-input__wrapper) {
+  background-color: transparent !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #e5e7eb !important;
+  border-radius: 4px !important;
+  box-shadow: none !important;
+  transition: all 0.2s ease !important;
+}
+
+:deep(.custom-input .el-input__wrapper:hover) {
+  border-color: rgba(59, 130, 246, 0.4) !important;
+  background-color: transparent !important;
+}
+
+:deep(.custom-input .el-input__wrapper.is-focus) {
+  border-color: rgba(59, 130, 246, 0.8) !important;
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.2) !important;
+  background-color: transparent !important;
+}
+
+:deep(.custom-input .el-input__inner) {
+  color: #e5e7eb !important;
+  background-color: transparent !important;
+}
+
+/* 工具备注输入框样式 */
+:deep(.custom-textarea .el-textarea__wrapper) {
+  background-color: rgba(30, 41, 59, 0.6) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #e5e7eb !important;
+  border-radius: 4px !important;
+  box-shadow: none !important;
+  transition: all 0.2s ease !important;
+}
+
+:deep(.custom-textarea .el-textarea__wrapper:hover) {
+  border-color: rgba(59, 130, 246, 0.4) !important;
+  background-color: rgba(30, 41, 59, 0.8) !important;
+}
+
+:deep(.custom-textarea .el-textarea__wrapper.is-focus) {
+  border-color: rgba(59, 130, 246, 0.8) !important;
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.2) !important;
+  background-color: rgba(30, 41, 59, 0.9) !important;
+}
+
+:deep(.custom-textarea .el-textarea__inner) {
+  color: #e5e7eb !important;
+  background-color: transparent !important;
+}
+
+/* 表格输入框样式 */
+:deep(.table-input .el-input__wrapper) {
+  background-color: rgba(15, 23, 42, 0.8) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+:deep(.table-input .el-input__wrapper:hover) {
+  border-color: rgba(59, 130, 246, 0.3) !important;
+}
+
+:deep(.table-input .el-input__wrapper.is-focus) {
+  border-color: rgba(59, 130, 246, 0.6) !important;
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.1) !important;
+}
+
+/* 去掉工具备注输入框右下角的字数统计标识 */
+:deep(.custom-textarea .el-input__count),
+:deep(.custom-textarea .el-textarea__count) {
+  display: none !important;
+}
+
+/* 选择器样式 - 脚本依赖下拉框黑色背景 */
+:deep(.custom-select .el-select__wrapper) {
+  background-color: rgba(30, 41, 59, 0.6) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #e5e7eb !important;
+  border-radius: 4px !important;
+  box-shadow: none !important;
+  transition: all 0.2s ease !important;
+  min-height: 32px !important;
+}
+
+:deep(.custom-select .el-select__wrapper:hover) {
+  border-color: rgba(59, 130, 246, 0.4) !important;
+  background-color: rgba(30, 41, 59, 0.8) !important;
+}
+
+:deep(.custom-select .el-select__wrapper.is-focused) {
+  border-color: rgba(59, 130, 246, 0.8) !important;
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.2) !important;
+  background-color: rgba(30, 41, 59, 0.9) !important;
+}
+
+/* 修复问题2：移除选中枚举值在当前下拉列表的背景色 */
+:deep(.custom-select .el-select__tags .el-tag) {
+  background-color: transparent !important;
+  border-color: transparent !important;
+  color: #e5e7eb !important;
+  margin: 2px 4px 2px 0 !important;
+}
+
+/* 开关样式 */
+:deep(.el-switch__core) {
+  background-color: rgba(75, 85, 99, 0.6) !important;
+  border-color: rgba(75, 85, 99, 0.6) !important;
+  transition: all 0.2s ease;
+}
+
+:deep(.el-switch.is-checked .el-switch__core) {
+  background-color: rgba(59, 130, 246, 0.8) !important;
+  border-color: rgba(59, 130, 246, 0.8) !important;
+}
+
+/* Coder组件样式 */
+:deep(.custom-coder .code-editor) {
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 4px !important;
+  overflow: hidden !important;
+}
+
+:deep(.custom-coder .CodeMirror) {
+  background-color: rgba(15, 23, 42, 0.9) !important;
+  color: #e5e7eb !important;
+  height: 300px !important;
+}
+
+:deep(.custom-coder .CodeMirror-gutters) {
+  background-color: rgba(15, 23, 42, 0.95) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+:deep(.custom-coder .CodeMirror-linenumber) {
+  color: #94a3b8 !important;
+  background-color: transparent !important;
+}
+
+/* 整体页面优化 */
+:deep(.el-table) {
+  --el-table-bg-color: rgba(30, 41, 59, 0.3);
+  --el-table-header-bg-color: rgba(30, 41, 59, 0.8) !important; /* 调整为更浅的颜色 */
+  --el-table-text-color: #e5e7eb;
+  --el-table-border-color: rgba(255, 255, 255, 0.08);
+  --el-table-row-hover-bg-color: rgba(59, 130, 246, 0.05);
+}
+
+:deep(.el-table th) {
+  background-color: rgba(30, 41, 59, 0.8) !important; /* 调整为更浅的颜色 */
+  color: #94a3b8 !important;
+  font-weight: 500;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+:deep(.el-table tr) {
+  background-color: transparent !important;
+}
+
+:deep(.el-table td) {
+  background-color: transparent !important;
+  color: #d1d5db !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+:deep(.el-table tr:hover td) {
+  background-color: rgba(59, 130, 246, 0.05) !important;
+}
+
+/* 表单验证样式 */
+:deep(.el-form-item__error) {
+  color: #f56c6c;
+  font-size: 12px;
+  line-height: 1;
+  padding-top: 4px;
+  position: absolute;
+  top: 100%;
+  left: 0;
+}
+
+/* 必填字段验证提示样式 */
+:deep(.el-form-item.is-error .custom-input .el-input__wrapper),
+:deep(.el-form-item.is-error .custom-textarea .el-textarea__wrapper) {
+  border-color: #f56c6c !important;
+}
+
+:deep(.el-form-item.is-error .custom-input .el-input__wrapper.is-focus),
+:deep(.el-form-item.is-error .custom-textarea .el-textarea__wrapper.is-focus) {
+  box-shadow: 0 0 0 1px rgba(245, 108, 108, 0.2) !important;
+}
+
+/* 脚本编辑器验证样式 */
+:deep(.el-form-item.is-error .custom-coder .code-editor) {
+  border-color: #f56c6c !important;
+}
+
+/* 分页组件样式优化 */
+:deep(.a-pagination .ant-pagination-item) {
+  background-color: rgba(30, 41, 59, 0.6);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+:deep(.a-pagination .ant-pagination-item a) {
+  color: #d1d5db;
+}
+
+:deep(.a-pagination .ant-pagination-item:hover) {
+  border-color: rgba(59, 130, 246, 0.4);
+  background-color: rgba(30, 41, 59, 0.8);
+}
+
+:deep(.a-pagination .ant-pagination-item-active) {
+  background-color: rgba(59, 130, 246, 0.2);
+  border-color: rgba(59, 130, 246, 0.6);
+}
+
+:deep(.a-pagination .ant-pagination-item-active a) {
+  color: #60a5fa;
+}
+
+:deep(.a-pagination .ant-pagination-prev .ant-pagination-item-link),
+:deep(.a-pagination .ant-pagination-next .ant-pagination-item-link) {
+  background-color: rgba(30, 41, 59, 0.6);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #d1d5db;
+}
+
+:deep(.a-pagination .ant-pagination-options .ant-select-selector) {
+  background-color: rgba(30, 41, 59, 0.6);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #d1d5db;
 }
 </style>
 
 <style>
-/* 全局样式覆盖 */
-.custom-dialog .el-dialog {
-  background-color: rgba(30, 41, 59, 0.95) !important;
-  border: none !important; /* 去掉白色边框 */
-  border-radius: 8px !important;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
+/* 脚本依赖下拉框全局样式 - 修复问题1和问题2 */
+.script-deps-dropdown.el-select-dropdown {
+  background-color: #121826 !important;
+  border: 1px solid rgba(59, 130, 246, 0.3) !important;
+  color: #e5e7eb !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+  --el-select-dropdown-bg-color: #121826 !important;
 }
 
-.custom-dialog .el-dialog__header {
-  background-color: rgba(30, 41, 59, 0.8) !important;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.2) !important;
-  padding: 15px 20px !important;
-  border-radius: 8px 8px 0 0 !important;
+.script-deps-dropdown .el-select-dropdown__empty {
+  background-color: #121826 !important;
+  color: #9ca3af !important;
 }
 
-.custom-dialog .el-dialog__title {
-  color: #e2e8f0 !important;
-  font-weight: 600 !important;
+/* 修复问题1：下拉框选项文字水平居中展示 */
+.script-deps-dropdown .el-select-dropdown__item {
+  color: #e5e7eb !important;
+  transition: all 0.2s ease !important;
+  padding: 8px 16px !important;
+  background-color: transparent !important;
+  text-align: center !important; /* 添加水平居中 */
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
-.custom-dialog .el-dialog__headerbtn {
-  top: 15px !important;
+.script-deps-dropdown .el-select-dropdown__item:hover {
+  background-color: rgba(59, 130, 246, 0.15) !important;
+  color: #93c5fd !important;
 }
 
-.custom-dialog .el-dialog__headerbtn .el-dialog__close {
-  color: #94a3b8 !important;
+/* 修复问题2：移除选中枚举值在下拉列表中的背景色 */
+.script-deps-dropdown .el-select-dropdown__item.selected {
+  background-color: transparent !important;
+  color: #60a5fa !important;
+  font-weight: 500 !important;
 }
 
-.custom-dialog .el-dialog__headerbtn:hover .el-dialog__close {
-  color: #e2e8f0 !important;
+.script-deps-dropdown .el-select-dropdown__item.hover {
+  background-color: rgba(59, 130, 246, 0.1) !important;
 }
 
-.custom-dialog .el-dialog__body {
-  background-color: rgba(30, 41, 59, 0.8) !important;
-  color: #e2e8f0 !important;
-  padding: 20px !important;
+.script-deps-dropdown .el-select-dropdown__item.is-disabled {
+  color: #6b7280 !important;
 }
 
-.custom-dialog .el-form-item__label {
-  color: #94a3b8 !important;
-}
-
-.custom-dialog .el-input__wrapper {
-  background-color: rgba(30, 41, 59, 0.6) !important;
-  border-color: rgba(148, 163, 184, 0.2) !important;
-  box-shadow: none !important;
-}
-
-.custom-dialog .el-input__wrapper:hover {
-  border-color: #60a5fa !important;
-}
-
-.custom-dialog .el-input__wrapper.is-focus {
-  border-color: #60a5fa !important;
-  box-shadow: 0 0 0 1px #60a5fa !important;
-}
-
-.custom-dialog .el-input__inner {
-  color: #e2e8f0 !important;
-}
-
-.custom-dialog .el-textarea__inner {
-  background-color: rgba(30, 41, 59, 0.6) !important;
-  border-color: rgba(148, 163, 184, 0.2) !important;
-  color: #e2e8f0 !important;
-  box-shadow: none !important;
-}
-
-.custom-dialog .el-textarea__inner:hover {
-  border-color: #60a5fa !important;
-}
-
-.custom-dialog .el-textarea__inner:focus {
-  border-color: #60a5fa !important;
-  box-shadow: 0 0 0 1px #60a5fa !important;
-}
-
-/* 脚本依赖选择器样式 */
-.custom-dialog .el-select .el-input__wrapper {
-  background-color: rgba(30, 41, 59, 0.6) !important;
-  border-color: rgba(148, 163, 184, 0.2) !important;
-}
-
-.custom-dialog .el-select .el-input__inner {
-  color: #e2e8f0 !important;
-}
-
-/* 下拉选择器样式 */
-.custom-dialog .el-select-dropdown {
-  background-color: rgba(30, 41, 59, 0.95) !important;
-  border: 1px solid rgba(148, 163, 184, 0.2) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
-}
-
-.custom-dialog .el-select-dropdown__item {
-  color: #e2e8f0 !important;
+.script-deps-dropdown .el-select-dropdown__item.is-disabled:hover {
   background-color: transparent !important;
 }
 
-.custom-dialog .el-select-dropdown__item:hover {
-  background-color: rgba(59, 130, 246, 0.2) !important;
+/* 滚动条样式 */
+.script-deps-dropdown .el-select-dropdown__wrap {
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(59, 130, 246, 0.3) #121826 !important;
 }
 
-.custom-dialog .el-select-dropdown__item.selected {
+.script-deps-dropdown .el-select-dropdown__wrap::-webkit-scrollbar {
+  width: 6px !important;
+}
+
+.script-deps-dropdown .el-select-dropdown__wrap::-webkit-scrollbar-track {
+  background: #121826 !important;
+}
+
+.script-deps-dropdown .el-select-dropdown__wrap::-webkit-scrollbar-thumb {
   background-color: rgba(59, 130, 246, 0.3) !important;
-  color: #60a5fa !important;
+  border-radius: 3px !important;
 }
 
-/* 多选标签样式 */
-.custom-dialog .el-select__tags .el-tag {
-  background-color: rgba(59, 130, 246, 0.2) !important;
-  border-color: rgba(59, 130, 246, 0.4) !important;
-  color: #60a5fa !important;
-}
-
-.custom-dialog .el-select__tags .el-tag .el-icon-close {
-  color: #60a5fa !important;
-}
-
-.custom-dialog .el-select__tags .el-tag .el-icon-close:hover {
-  background-color: rgba(239, 68, 68, 0.2) !important;
-  color: #ef4444 !important;
-}
-
-/* 字数统计样式 - 修复计数颜色 */
-.custom-dialog .el-input__count {
-  background: transparent !important;
-  color: #94a3b8 !important;
-}
-
-.custom-dialog .el-textarea .el-input__count {
-  background: transparent !important;
-  color: #94a3b8 !important;
-}
-
-.custom-dialog .el-table {
-  background-color: transparent !important;
-  color: #e2e8f0 !important;
-}
-
-.custom-dialog .el-table th {
-  background-color: rgba(30, 41, 59, 0.8) !important;
-  color: #94a3b8 !important;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.2) !important;
-}
-
-.custom-dialog .el-table tr {
-  background-color: transparent !important;
-}
-
-.custom-dialog .el-table td {
-  background-color: rgba(30, 41, 59, 0.4) !important;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.1) !important;
-  color: #e2e8f0 !important;
-}
-
-.custom-dialog .el-table tr:hover > td {
-  background-color: rgba(59, 130, 246, 0.1) !important;
-}
-
-.custom-dialog .el-switch__core {
-  background-color: rgba(148, 163, 184, 0.3) !important;
-  border-color: rgba(148, 163, 184, 0.3) !important;
-}
-
-.custom-dialog .el-switch.is-checked .el-switch__core {
-  background-color: #10b981 !important;
-  border-color: #10b981 !important;
-}
-
-/* 按钮样式统一 */
-.el-button--primary {
-  background: linear-gradient(to right, #3b82f6, #1d4ed8) !important;
-  border: none !important;
-  color: #fff !important;
-}
-
-.el-button--primary:hover {
-  background: linear-gradient(to right, #2563eb, #60a5fa) !important;
-}
-
-.el-button--danger {
-  background: linear-gradient(to right, #4549ed, #ff6464) !important;
-  border: none !important;
-  color: #fff !important;
-}
-
-.el-button--danger:hover {
-  background: linear-gradient(to right, #ff6464, #4549ed) !important;
-}
-
-/* 分页样式统一 - 修复分页按钮背景色 */
-.el-pagination {
-  --el-pagination-bg-color: transparent !important;
-  --el-pagination-text-color: #94a3b8 !important;
-  --el-pagination-border-color: rgba(148, 163, 184, 0.1) !important;
-  --el-pagination-hover-color: #60a5fa !important;
-}
-
-.el-pagination .btn-prev,
-.el-pagination .btn-next,
-.el-pagination .number {
-  background-color: rgba(30, 41, 59, 0.5) !important;
-  color: #94a3b8 !important;
-  border: 1px solid rgba(148, 163, 184, 0.1) !important;
-}
-
-.el-pagination .btn-prev:hover,
-.el-pagination .btn-next:hover,
-.el-pagination .number:hover {
-  color: #60a5fa !important;
-  background-color: rgba(59, 130, 246, 0.1) !important;
-}
-
-.el-pagination .number.active {
-  background-color: rgba(59, 130, 246, 0.2) !important;
-  color: #60a5fa !important;
-  border-color: rgba(59, 130, 246, 0.3) !important;
-}
-
-.el-pagination .el-input__wrapper {
-  background-color: rgba(30, 41, 59, 0.5) !important;
-  border-color: rgba(148, 163, 184, 0.1) !important;
-  color: #e2e8f0 !important;
-}
-
-.el-pagination .el-input__inner {
-  color: #e2e8f0 !important;
-}
-
-.el-pagination .el-pagination__total {
-  color: #94a3b8 !important;
-}
-
-.el-pagination .el-pagination__sizes .el-input .el-input__inner {
-  color: #e2e8f0 !important;
-}
-
-.el-pagination .el-pagination__jump {
-  color: #94a3b8 !important;
-}
-
-/* 表格样式统一 */
-.el-table {
-  --el-table-border-color: rgba(148, 163, 184, 0.1) !important;
-  --el-table-bg-color: transparent !important;
-  --el-table-tr-bg-color: transparent !important;
-  --el-table-text-color: #e2e8f0 !important;
-  --el-table-header-text-color: #94a3b8 !important;
-  --el-table-row-hover-bg-color: rgba(59, 130, 246, 0.1) !important;
-  --el-table-current-row-bg-color: rgba(59, 130, 246, 0.2) !important;
-}
-
-.el-table th {
-  background-color: rgba(30, 41, 59, 0.8) !important;
-  color: #94a3b8 !important;
-  font-weight: 600 !important;
-}
-
-.el-table tr {
-  background-color: transparent !important;
-}
-
-.el-table td {
-  background-color: rgba(30, 41, 59, 0.4) !important;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.1) !important;
-}
-
-.el-table tr:hover > td {
-  background-color: rgba(59, 130, 246, 0.1) !important;
-}
-
-.el-table .el-table__empty-block {
-  background-color: transparent !important;
-}
-
-.el-table .el-table__empty-text {
-  color: #94a3b8 !important;
-}
-
-/* 搜索框样式统一 */
-.el-input__wrapper {
-  background-color: rgba(30, 41, 59, 0.5) !important;
-  border-color: rgba(148, 163, 184, 0.1) !important;
-  box-shadow: none !important;
-}
-
-.el-input__wrapper:hover {
-  border-color: #60a5fa !important;
-}
-
-.el-input__wrapper.is-focus {
-  border-color: #60a5fa !important;
-  box-shadow: 0 0 0 1px #60a5fa !important;
-}
-
-.el-input__inner {
-  color: #e2e8f0 !important;
-}
-
-.el-input__suffix {
-  color: #94a3b8 !important;
-}
-
-/* 加载样式 */
-.el-loading-mask {
-  background-color: rgba(15, 23, 42, 0.7) !important;
-}
-
-.el-loading-spinner .path {
-  stroke: #60a5fa !important;
-}
-
-.el-loading-text {
-  color: #94a3b8 !important;
-}
-
-/* Coder 组件样式调整 - 修复代码编辑器行号框 */
-.coder-container .el-textarea__inner {
-  background-color: rgba(30, 41, 59, 0.6) !important;
-  border-color: rgba(148, 163, 184, 0.2) !important;
-  color: #e2e8f0 !important;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace !important;
-}
-
-/* 修复代码编辑器行号框背景色 */
-.coder-container .code-line-numbers {
-  background-color: rgba(30, 41, 59, 0.8) !important;
-  color: #94a3b8 !important;
-  border-right: 1px solid rgba(148, 163, 184, 0.2) !important;
-}
-
-/* 代码高亮样式 */
-.coder-container .hljs {
-  background: rgba(30, 41, 59, 0.6) !important;
-  color: #e2e8f0 !important;
-}
-
-.coder-container .hljs-keyword {
-  color: #60a5fa !important;
-}
-
-.coder-container .hljs-string {
-  color: #34d399 !important;
-}
-
-.coder-container .hljs-comment {
-  color: #94a3b8 !important;
-}
-
-.coder-container .hljs-function {
-  color: #f472b6 !important;
-}
-
-.coder-container .hljs-number {
-  color: #f59e0b !important;
-}
-
-/* 脚本依赖选择器样式修复 */
-.custom-dialog .el-select-dropdown {
-  background-color: rgba(30, 41, 59, 0.95) !important;
-  border: 1px solid rgba(148, 163, 184, 0.2) !important;
-}
-
-.custom-dialog .el-select-dropdown__item {
-  color: #e2e8f0 !important;
-  background-color: transparent !important;
-}
-
-.custom-dialog .el-select-dropdown__item:hover {
-  background-color: rgba(59, 130, 246, 0.2) !important;
-}
-
-.custom-dialog .el-select-dropdown__item.selected {
-  background-color: rgba(59, 130, 246, 0.3) !important;
-  color: #60a5fa !important;
-}
-
-/* 修复多选标签样式 */
-.custom-dialog .el-select__tags .el-tag {
-  background-color: rgba(59, 130, 246, 0.2) !important;
-  border-color: rgba(59, 130, 246, 0.4) !important;
-  color: #60a5fa !important;
-}
-
-.custom-dialog .el-select__tags .el-tag .el-icon-close {
-  color: #60a5fa !important;
-}
-
-.custom-dialog .el-select__tags .el-tag .el-icon-close:hover {
-  background-color: rgba(239, 68, 68, 0.2) !important;
-  color: #ef4444 !important;
-}
-
-/* 修复文本输入框计数颜色 */
-.custom-dialog .el-input__count {
-  background: transparent !important;
-  color: #94a3b8 !important;
-}
-
-.custom-dialog .el-textarea .el-input__count {
-  background: transparent !important;
-  color: #94a3b8 !important;
-}
-
-/* 修复分页按钮背景色 */
-.el-pagination .btn-prev,
-.el-pagination .btn-next,
-.el-pagination .number {
-  background-color: rgba(30, 41, 59, 0.5) !important;
-  color: #94a3b8 !important;
-  border: 1px solid rgba(148, 163, 184, 0.1) !important;
-}
-
-.el-pagination .btn-prev:hover,
-.el-pagination .btn-next:hover,
-.el-pagination .number:hover {
-  color: #60a5fa !important;
-  background-color: rgba(59, 130, 246, 0.1) !important;
-}
-
-.el-pagination .number.active {
-  background-color: rgba(59, 130, 246, 0.2) !important;
-  color: #60a5fa !important;
-  border-color: rgba(59, 130, 246, 0.3) !important;
-}
-
-/* 修复代码编辑器行号框背景色 */
-.coder-container .code-line-numbers {
-  background-color: rgba(30, 41, 59, 0.8) !important;
-  color: #94a3b8 !important;
-  border-right: 1px solid rgba(148, 163, 184, 0.2) !important;
+.script-deps-dropdown .el-select-dropdown__wrap::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(59, 130, 246, 0.5) !important;
 }
 </style>

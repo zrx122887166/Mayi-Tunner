@@ -100,9 +100,9 @@ class ToolViewSet(viewsets.ModelViewSet):
             update_data = {
                 'name': data.get('name', tool.name),
                 'remark': data.get('remark', tool.remark),
-                'pythonScript': data.get('scripts', tool.pythonScript),  # 前端发送 scripts，映射到 pythonScript
+                'pythonScript': data.get('pythonScript', tool.pythonScript),
                 'params': data.get('params', tool.params),
-                'connect_pools': data.get('selectedConnectPools', tool.connect_pools)
+                'connect_pools': data.get('connect_pools', tool.connect_pools)
                 # 前端发送 selectedConnectPools，映射到 connect_pools
             }
 
