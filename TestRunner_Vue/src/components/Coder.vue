@@ -18,13 +18,12 @@
 <script>
 import { Codemirror } from 'vue-codemirror';
 import { python } from '@codemirror/lang-python';
+import { oneDark } from '@codemirror/theme-one-dark'; // 导入深色主题
 
 export default {
-  // 注册组件
   components: {
     Codemirror
   },
-  // 定义 props
   props: {
     content: {
       type: String,
@@ -37,22 +36,23 @@ export default {
     readOnly: {
       type: Boolean,
       default: false
+    },
+    height: { // 添加高度属性
+      type: String,
+      default: '500px'
     }
   },
-  // 定义数据
   data() {
     return {
       script: this.content,
-      extensions: [python()]
+      extensions: [python(), oneDark] // 应用深色主题
     };
   },
-  // 监听 props 变化
   watch: {
     content(newValue) {
       this.script = newValue;
     }
   },
-  // 定义方法
   methods: {
     updateScript() {
       this.$emit('updateScript', this.script);
@@ -76,32 +76,91 @@ export default {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
-/* 编辑器主体样式 */
+/* 深色主题样式 */
 ::v-deep .cm-editor {
   width: 100%;
-  border: 1px solid #e0e0e0;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
   border-radius: 8px;
   overflow: hidden;
+  background-color: rgba(15, 23, 42, 0.9) !important;
+}
+
+/* 行号区域样式 */
+::v-deep .cm-gutters {
+  background-color: rgba(30, 41, 59, 0.9) !important; /* 行号背景色 */
+  border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #94a3b8 !important; /* 行号文本颜色 */
+}
+
+/* 行号文本样式 */
+::v-deep .cm-lineNumbers {
+  color: #94a3b8 !important;
+}
+
+/* 编辑器内容样式 */
+::v-deep .cm-content {
+  color: #e5e7eb !important;
+  caret-color: #60a5fa !important;
 }
 
 /* 聚焦状态样式 */
 ::v-deep .cm-editor.cm-focused {
-  border-color: #42b983; /* Vue 绿色作为焦点色 */
-  box-shadow: 0 0 0 2px rgba(66, 185, 131, 0.2);
+  border-color: rgba(59, 130, 246, 0.8) !important;
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.2) !important;
   outline: none;
 }
 
 /* 占位符样式 */
 ::v-deep .cm-placeholder {
-  color: #9e9e9e;
+  color: #9ca3af !important;
   font-style: italic;
 }
 
 /* 只读状态样式 */
 ::v-deep .cm-editor[disabled] {
-  background-color: #f5f5f5;
+  background-color: rgba(15, 23, 42, 0.7) !important;
   cursor: not-allowed;
-  border-color: #e0e0e0;
+  border-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* 光标样式 */
+::v-deep .cm-cursor {
+  border-left-color: #60a5fa !important;
+}
+
+/* 选中文本样式 */
+::v-deep .cm-selectionBackground {
+  background-color: rgba(59, 130, 246, 0.3) !important;
+}
+
+/* 代码高亮样式 */
+::v-deep .cm-keyword {
+  color: #f472b6 !important; /* 粉色关键字 */
+}
+
+::v-deep .cm-string {
+  color: #34d399 !important; /* 绿色字符串 */
+}
+
+::v-deep .cm-comment {
+  color: #94a3b8 !important; /* 灰色注释 */
+  font-style: italic !important;
+}
+
+::v-deep .cm-function {
+  color: #60a5fa !important; /* 蓝色函数名 */
+}
+
+::v-deep .cm-number {
+  color: #f59e0b !important; /* 橙色数字 */
+}
+
+::v-deep .cm-builtin {
+  color: #818cf8 !important; /* 紫色内置函数 */
+}
+
+::v-deep .cm-variable {
+  color: #e5e7eb !important; /* 白色变量名 */
 }
 
 /* 响应式调整 */

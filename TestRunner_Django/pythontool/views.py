@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.core.paginator import Paginator
 import subprocess
+from django.utils import timezone
 import tempfile
 import os
 import logging
@@ -55,11 +56,13 @@ class ToolViewSet(viewsets.ModelViewSet):
                     'remark': tool.remark,
                     'pythonScript': tool.pythonScript,
                     'params': tool.params,
-                    'create_time': tool.create_time.strftime("%Y-%m-%d %H:%M:%S") if tool.create_time else None,
+                    'create_time': timezone.localtime(tool.create_time).strftime(
+                        "%Y-%m-%d %H:%M:%S") if tool.create_time else None,
                     'creator': tool.creator.username if tool.creator else '未知用户',
                     'connect_pools': tool.connect_pools,
                     'has_params': bool(tool.params)
                 }
+                print('测试时间',tool_dict)
                 formatted_tools.append(tool_dict)
 
             return Response({

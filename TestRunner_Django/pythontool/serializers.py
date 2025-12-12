@@ -24,15 +24,6 @@ class ToolSerializer(serializers.ModelSerializer):
         validated_data['creator'] = self.context['request'].user
         return super().create(validated_data)
 
-# class ToolsSerializer(serializers.ModelSerializer):
-#     """依赖工具序列化器（适配最新模型）"""
-    # 若添加了creator字段，补充以下配置
-    # creator_name = serializers.ReadOnlyField(source='creator.username', required=False)
-
-    # class Meta:
-    #     model = Tools
-    #     fields = ['id', 'name', 'remark', 'pythonScript', 'creator', 'creator_name', 'create_time']  # 按需加creator
-    #     read_only_fields = ['id', 'creator', 'creator_name', 'create_time']  # 按需加creator
 
 
 class ToolsSerializer(serializers.ModelSerializer):

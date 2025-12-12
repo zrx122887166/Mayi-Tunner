@@ -855,14 +855,13 @@ onMounted(() => {
 }
 
 .param-header {
-  background-color: rgba(30, 41, 59, 0.8) !important; /* 调整为更浅的颜色 */
+  background-color: rgba(30, 41, 59, 0.8) !important;
   color: #94a3b8;
   font-weight: 500;
   text-align: left;
   padding: 14px 16px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   white-space: nowrap;
-  /* 修复问题2：表头垂直居中 */
   vertical-align: middle;
 }
 
@@ -875,7 +874,6 @@ onMounted(() => {
   padding: 14px 16px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   background-color: rgba(30, 41, 59, 0.2);
-  /* 修复问题2：单元格垂直居中 */
   vertical-align: middle;
 }
 
@@ -887,7 +885,7 @@ onMounted(() => {
 .param-cell.actions {
   min-width: 140px;
   text-align: center;
-  padding: 0; /* 移除默认padding，避免间距问题 */
+  padding: 0;
 }
 
 .table-input {
@@ -907,7 +905,6 @@ onMounted(() => {
   gap: 8px;
   align-items: center;
   justify-content: center;
-  /* 修复垂直居中 - 填充单元格高度 */
   height: 100%;
   padding: 14px 16px;
   box-sizing: border-box;
@@ -1165,7 +1162,7 @@ onMounted(() => {
   display: none !important;
 }
 
-/* 选择器样式 - 脚本依赖下拉框黑色背景 */
+/* 选择器样式 - 脚本依赖下拉框黑色背景（核心修改：移除选中标签白色底块） */
 :deep(.custom-select .el-select__wrapper) {
   background-color: rgba(30, 41, 59, 0.6) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -1187,12 +1184,45 @@ onMounted(() => {
   background-color: rgba(30, 41, 59, 0.9) !important;
 }
 
-/* 修复问题2：移除选中枚举值在当前下拉列表的背景色 */
-:deep(.custom-select .el-select__tags .el-tag) {
+/* 核心修改：彻底移除/修改选中标签的白色背景 */
+:deep(.custom-select .el-select__tags) {
   background-color: transparent !important;
-  border-color: transparent !important;
+  padding: 2px 4px !important;
+}
+
+:deep(.custom-select .el-select__tags .el-tag) {
+  /* 浅黑色背景 */
+  background-color: rgba(30, 41, 59, 0.9) !important;
+  border: 1px solid rgba(59, 130, 246, 0.4) !important;
   color: #e5e7eb !important;
   margin: 2px 4px 2px 0 !important;
+  padding: 0 8px !important;
+  height: 24px !important;
+  line-height: 24px !important;
+  border-radius: 4px !important;
+}
+
+/* 特别修改 .el-tag__content 的样式 */
+:deep(.custom-select .el-select__tags .el-tag .el-tag__content) {
+  color: #e5e7eb !important;
+  background-color: transparent !important;
+}
+
+:deep(.custom-select .el-select__tags .el-tag .el-tag__close) {
+  color: #9ca3af !important;
+  margin-left: 4px !important;
+  background-color: transparent !important;
+}
+
+:deep(.custom-select .el-select__tags .el-tag .el-tag__close:hover) {
+  color: #e5e7eb !important;
+  background-color: transparent !important;
+}
+
+/* 修复多选时输入框的背景色 */
+:deep(.custom-select .el-select__input) {
+  background-color: transparent !important;
+  color: #e5e7eb !important;
 }
 
 /* 开关样式 */
@@ -1233,14 +1263,14 @@ onMounted(() => {
 /* 整体页面优化 */
 :deep(.el-table) {
   --el-table-bg-color: rgba(30, 41, 59, 0.3);
-  --el-table-header-bg-color: rgba(30, 41, 59, 0.8) !important; /* 调整为更浅的颜色 */
+  --el-table-header-bg-color: rgba(30, 41, 59, 0.8) !important;
   --el-table-text-color: #e5e7eb;
   --el-table-border-color: rgba(255, 255, 255, 0.08);
   --el-table-row-hover-bg-color: rgba(59, 130, 246, 0.05);
 }
 
 :deep(.el-table th) {
-  background-color: rgba(30, 41, 59, 0.8) !important; /* 调整为更浅的颜色 */
+  background-color: rgba(30, 41, 59, 0.8) !important;
   color: #94a3b8 !important;
   font-weight: 500;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -1346,7 +1376,7 @@ onMounted(() => {
   transition: all 0.2s ease !important;
   padding: 8px 16px !important;
   background-color: transparent !important;
-  text-align: center !important; /* 添加水平居中 */
+  text-align: center !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -1359,9 +1389,10 @@ onMounted(() => {
 
 /* 修复问题2：移除选中枚举值在下拉列表中的背景色 */
 .script-deps-dropdown .el-select-dropdown__item.selected {
-  background-color: transparent !important;
+  background-color: rgba(15, 23, 42, 0.8) !important;
   color: #60a5fa !important;
   font-weight: 500 !important;
+  border-radius: 4px !important;
 }
 
 .script-deps-dropdown .el-select-dropdown__item.hover {
@@ -1374,6 +1405,24 @@ onMounted(() => {
 
 .script-deps-dropdown .el-select-dropdown__item.is-disabled:hover {
   background-color: transparent !important;
+}
+
+/* 针对多选标签的全局样式覆盖 */
+.el-tag {
+  --el-tag-bg-color: rgba(30, 41, 59, 0.9) !important;
+  --el-tag-border-color: rgba(59, 130, 246, 0.4) !important;
+  --el-tag-text-color: #e5e7eb !important;
+  --el-tag-hover-color: #e5e7eb !important;
+}
+
+.el-tag.el-tag--info {
+  background-color: rgba(30, 41, 59, 0.9) !important;
+  border-color: rgba(59, 130, 246, 0.4) !important;
+  color: #e5e7eb !important;
+}
+
+.el-tag.el-tag--info .el-tag__content {
+  color: #e5e7eb !important;
 }
 
 /* 滚动条样式 */
