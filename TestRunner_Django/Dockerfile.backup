@@ -1,0 +1,28 @@
+# 基于python3.9构建（适配Django项目）
+FROM python:3.9
+
+# 设置工作目录（和项目路径一致）
+WORKDIR /root/Mayi-Tunner/TestRunner_Django
+
+# 配置国内PyPI源，解决pip安装超时
+RUN pip config set global.index-url https://mirrors.aliyun.com/pypi/simple/ \
+    && pip config set install.trusted-host mirrors.aliyun.com \
+    && pip install --upgrade pip --default-timeout=300
+
+# 复制依赖文件，利用Docker缓存
+COPY requirements.txt .
+
+# 安装项目依赖
+RUN pip install -r requirements.txt --default-timeout=300
+
+# 复制整个后端项目
+COPY . .
+
+# 收集静态文件（Django项目必备）
+RUN python manage.py collectstatic --noinput
+
+# 暴露端口（和项目一致，比如8000）
+EXPOSE 8000
+
+# 启动命令（用uwsgi/run.sh，参考你的项目启动方式）
+CMD ["sh", "-c", "python manage.py migrate && uwsgi uwsgi.ini"]

@@ -1,0 +1,7 @@
+FROM ghcr.io/lucky-testrunner/testrunner-backend:latest
+
+# 复制启动脚本
+COPY start_with_secret.sh /start_with_secret.sh
+RUN chmod +x /start_with_secret.sh
+
+CMD ["/start_with_secret.sh"]

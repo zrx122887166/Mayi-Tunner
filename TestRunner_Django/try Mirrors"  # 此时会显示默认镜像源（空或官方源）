@@ -1,0 +1,38 @@
+[0;1;32m●[0m docker.service - Docker Application Container Engine
+     Loaded: loaded (/lib/systemd/system/docker.service; enabled; vendor preset: enabled)
+     Active: [0;1;32mactive (running)[0m since Sat 2026-02-07 20:47:13 CST; 8s ago
+TriggeredBy: [0;1;32m●[0m docker.socket
+       Docs: https://docs.docker.com
+   Main PID: 18800 (dockerd)
+      Tasks: 141
+     Memory: 49.0M
+        CPU: 828ms
+     CGroup: /system.slice/docker.service
+             ├─18800 /usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock
+             ├─19333 /usr/bin/docker-proxy -proto tcp -host-ip 0.0.0.0 -host-port 80 -container-ip 172.20.0.2 -container-port 80 -use-listen-fd
+             ├─19341 /usr/bin/docker-proxy -proto tcp -host-ip :: -host-port 80 -container-ip 172.20.0.2 -container-port 80 -use-listen-fd
+             ├─19413 /usr/bin/docker-proxy -proto tcp -host-ip 0.0.0.0 -host-port 3306 -container-ip 172.17.0.2 -container-port 3306 -use-listen-fd
+             ├─19420 /usr/bin/docker-proxy -proto tcp -host-ip :: -host-port 3306 -container-ip 172.17.0.2 -container-port 3306 -use-listen-fd
+             ├─19456 /usr/bin/docker-proxy -proto tcp -host-ip 0.0.0.0 -host-port 8000 -container-ip 172.20.0.3 -container-port 8000 -use-listen-fd
+             ├─19461 /usr/bin/docker-proxy -proto tcp -host-ip :: -host-port 8000 -container-ip 172.20.0.3 -container-port 8000 -use-listen-fd
+             ├─19503 /usr/bin/docker-proxy -proto tcp -host-ip 0.0.0.0 -host-port 6185 -container-ip 172.18.0.2 -container-port 6185 -use-listen-fd
+             ├─19509 /usr/bin/docker-proxy -proto tcp -host-ip :: -host-port 6185 -container-ip 172.18.0.2 -container-port 6185 -use-listen-fd
+             ├─19516 /usr/bin/docker-proxy -proto tcp -host-ip 0.0.0.0 -host-port 6195 -container-ip 172.18.0.2 -container-port 6195 -use-listen-fd
+             ├─19523 /usr/bin/docker-proxy -proto tcp -host-ip :: -host-port 6195 -container-ip 172.18.0.2 -container-port 6195 -use-listen-fd
+             ├─19531 /usr/bin/docker-proxy -proto tcp -host-ip 0.0.0.0 -host-port 6199 -container-ip 172.18.0.2 -container-port 6199 -use-listen-fd
+             ├─19540 /usr/bin/docker-proxy -proto tcp -host-ip :: -host-port 6199 -container-ip 172.18.0.2 -container-port 6199 -use-listen-fd
+             ├─19575 /usr/bin/docker-proxy -proto tcp -host-ip 0.0.0.0 -host-port 8081 -container-ip 172.17.0.3 -container-port 8081 -use-listen-fd
+             ├─19580 /usr/bin/docker-proxy -proto tcp -host-ip :: -host-port 8081 -container-ip 172.17.0.3 -container-port 8081 -use-listen-fd
+             ├─19609 /usr/bin/docker-proxy -proto tcp -host-ip 0.0.0.0 -host-port 6099 -container-ip 172.18.0.3 -container-port 6099 -use-listen-fd
+             └─19615 /usr/bin/docker-proxy -proto tcp -host-ip :: -host-port 6099 -container-ip 172.18.0.3 -container-port 6099 -use-listen-fd
+
+Feb 07 20:47:12 lavm-zv7cd091w3 dockerd[18800]: time="2026-02-07T20:47:12.217027228+08:00" level=info msg="No non-localhost DNS nameservers are left in resolv.conf. Using default external servers"
+Feb 07 20:47:12 lavm-zv7cd091w3 dockerd[18800]: time="2026-02-07T20:47:12.262063023+08:00" level=info msg="No non-localhost DNS nameservers are left in resolv.conf. Using default external servers"
+Feb 07 20:47:12 lavm-zv7cd091w3 dockerd[18800]: time="2026-02-07T20:47:12.384779820+08:00" level=info msg="No non-localhost DNS nameservers are left in resolv.conf. Using default external servers"
+Feb 07 20:47:12 lavm-zv7cd091w3 dockerd[18800]: time="2026-02-07T20:47:12.755326198+08:00" level=info msg="Loading containers: done."
+Feb 07 20:47:12 lavm-zv7cd091w3 dockerd[18800]: time="2026-02-07T20:47:12.915327929+08:00" level=info msg="Docker daemon" commit=01f442b containerd-snapshotter=false storage-driver=overlay2 version=28.1.1
+Feb 07 20:47:12 lavm-zv7cd091w3 dockerd[18800]: time="2026-02-07T20:47:12.915397760+08:00" level=info msg="Initializing buildkit"
+Feb 07 20:47:12 lavm-zv7cd091w3 dockerd[18800]: time="2026-02-07T20:47:12.964529880+08:00" level=info msg="Completed buildkit initialization"
+Feb 07 20:47:12 lavm-zv7cd091w3 dockerd[18800]: time="2026-02-07T20:47:12.989841212+08:00" level=info msg="Daemon has completed initialization"
+Feb 07 20:47:13 lavm-zv7cd091w3 dockerd[18800]: time="2026-02-07T20:47:13.001857322+08:00" level=info msg="API listen on /run/docker.sock"
+Feb 07 20:47:13 lavm-zv7cd091w3 systemd[1]: Started Docker Application Container Engine.

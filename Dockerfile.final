@@ -1,0 +1,7 @@
+FROM ghcr.io/lucky-testrunner/testrunner-backend:latest
+
+# 复制修复启动脚本
+COPY final_fix_start.py /final_fix_start.py
+RUN chmod +x /final_fix_start.py
+
+ENTRYPOINT ["python", "/final_fix_start.py"]
